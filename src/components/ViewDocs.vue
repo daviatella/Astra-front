@@ -1,12 +1,9 @@
 <template>
-  <div class="container">
-    <v-img :src="`src/assets/logo.png`" class="logo" cover/>
-  </div>
-  <Test/>
+  <CreateButtons @goDocs="toggleFlow" class="b-bar" />
   <v-container class="bg-deep-purple-lighten-5 margin">
     <v-row>
       <v-col v-for="(card, index) in cards" :key="index" cols="15" sm="2" md="4" lg="2">
-        <v-card class="rounded-lg doc-card" link>
+        <v-card @click="toggleFlow" class="rounded-lg doc-card">
           <header class="card-header">
             <p class="card-header-title">
               {{ card.title }}
@@ -25,7 +22,7 @@
 </template>
 
 <script>
-import Test from './Test.vue';
+import CreateButtons from './CreateButtons.vue';
 
 export default {
   data: () => ({
@@ -68,10 +65,19 @@ export default {
       },
     ],
   }),
+  emits: ['goDocs'],
+  methods: {
+    toggleFlow() {
+      this.$emit('goDocs');
+    }
+  }
 };
 </script>
 
-<style>
+<style scoped>
+p {
+  font-family: Space Grotesk, sans-serif;
+}
 
 .logo {
   height: auto;
@@ -79,6 +85,7 @@ export default {
   margin: auto;
   margin-top: 4rem;
 }
+
 .test {
   width: 100%;
   max-width: 100%;

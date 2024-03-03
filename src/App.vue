@@ -2,14 +2,30 @@
   <v-app>
     <v-main>
       <TopBar/>
-      <ViewDocs />
+       <TabsBar/>
     </v-main>
   </v-app>
 </template>
 
-<script setup>
+<script>
 import ViewDocs from './components/ViewDocs.vue';
 import TopBar from './components/TopBar.vue';
+import TabsBar from './components/Document/TabsBar.vue'
 
-  //
+export default {
+    data() {
+        return {
+            isFlow: false,
+            isViewDocs: true
+        };
+    },
+    methods: {
+        toggleFlow() {
+            this.isViewDocs = !this.isViewDocs;
+            this.isFlow = !this.isFlow;
+        }
+    },
+    components: { TabsBar }
+};
+
 </script>

@@ -27,6 +27,7 @@ export default {
   max-width: 50rem;
   margin:auto;
   margin-top: 0.5rem;
+  font-family: Space Grotesk, sans-serif;
 }
 
 .astra-bar {

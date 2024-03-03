@@ -9,7 +9,13 @@
   "dependencies": {
     "@mdi/font": "7.0.96",
     "@ntohq/buefy-next": "^0.1.2",
+    "@vue-flow/background": "^1.3.0",
+    "@vue-flow/controls": "^1.1.1",
+    "@vue-flow/core": "^1.33.2",
+    "@vue-flow/minimap": "^1.4.0",
+    "@vueup/vue-quill": "^1.2.0",
     "buefy": "github:buefy/buefy#buefy-next",
+    "lodash": "^4.17.21",
     "roboto-fontface": "*",
     "vue": "^3.3.0",
     "vuetify": "^3.0.0"
