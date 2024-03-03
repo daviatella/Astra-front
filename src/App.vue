@@ -11,7 +11,7 @@
 import ViewDocs from './components/ViewDocs.vue';
 import TopBar from './components/TopBar.vue';
 import TabsBar from './components/Document/TabsBar.vue'
-
+import Flow from './components/Document/Flow.vue'
 export default {
     data() {
         return {

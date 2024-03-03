@@ -24,11 +24,10 @@
             </div>
             </v-window-item>
             <v-window-item    :key="3" :value="'tab-' + 3">
-                <div class="choice">
-                <Flow  />
-            </div>
             </v-window-item>
         </v-window>
+        <Flow  />
+
 </template>
   
 <script>
