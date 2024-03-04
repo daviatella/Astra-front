@@ -10,7 +10,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/Astra-front/",
+  base: "https://daviatella.github.io/Astra-front/",
   plugins: [
     Vue({
       template: { transformAssetUrls }
