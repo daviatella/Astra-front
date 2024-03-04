@@ -1,36 +1,60 @@
-<script>
+<script setup>
 import { ref } from 'vue'
+import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { Background } from '@vue-flow/background'
+import { MiniMap } from '@vue-flow/minimap'
+import { initialEdges, initialNodes } from './initial-elements.js'
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
 
-export default {
-    setup() {
-        const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
+const { onPaneReady, onNodeDragStop, onConnect, addEdges, setViewport, toObject } = useVueFlow()
+const nodes = ref(initialNodes)
+const edges = ref(initialEdges)
+// our dark mode toggle flag
+const dark = ref(false)
 
-        // Using refs for reactive properties
-        const dragOver = ref(false)
+onPaneReady(({ fitView }) => {
+  fitView()
+})
 
-        // Export the properties
-        return {
-            onDragOver,
-            onDrop,
-            onDragLeave,
-            isDragOver
-        }
-    },
-    components: {
-        DropzoneBackground,
-        Sidebar,
-        VueFlow
+onNodeDragStop(({ event, nodes, node, intersections }) => {
+  console.log('Node Drag Stop', { event, nodes, node, intersections })
+})
+
+onConnect((connection) => {
+  addEdges(connection)
+})
+
+function updatePos() {
+  nodes.value = nodes.value.map((node) => {
+    return {
+      ...node,
+      position: {
+        x: Math.random() * 400,
+        y: Math.random() * 400,
+      },
     }
+  })
 }
+
+function logToObject() {
+  console.log(toObject())
+}
+
+function resetTransform() {
+  setViewport({ x: 0, y: 0, zoom: 1 })
+}
+function toggleDarkMode() {
+  dark.value = !dark.value
+}
+const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 </script>
+
 
 <template>
   <div class="dndflow" @drop="onDrop">
-    <VueFlow :nodes="nodes" @dragover="onDragOver" @dragleave="onDragLeave">
+    <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver" @dragleave="onDragLeave">
       <DropzoneBackground
         :style="{
           backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
