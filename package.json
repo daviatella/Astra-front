@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--no-warnings' vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -13,7 +13,9 @@
     "@vue-flow/controls": "^1.1.1",
     "@vue-flow/core": "^1.33.2",
     "@vue-flow/minimap": "^1.4.0",
+    "@vue-flow/node-toolbar": "^1.1.0",
     "@vueup/vue-quill": "^1.2.0",
+    "axios": "^1.6.7",
     "buefy": "github:buefy/buefy#buefy-next",
     "lodash": "^4.17.21",
     "roboto-fontface": "*",

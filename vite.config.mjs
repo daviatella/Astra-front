@@ -10,7 +10,9 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "https://daviatella.github.io/Astra-front/",
+  build: {
+    outDir: '../Astra-back/dist'
+  },
   plugins: [
     Vue({
       template: { transformAssetUrls }
@@ -18,6 +20,7 @@ export default defineConfig({
     // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify(),
     Components(),
+    
     ViteFonts({
       google: {
         families: [{

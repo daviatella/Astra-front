@@ -92,7 +92,6 @@ export default {
 }
 
 .circle-button {
-    height: auto;
     max-width: 10rem;
     padding: 10px 20px;
     background-color: #7b4184;
