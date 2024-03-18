@@ -1,30 +1,34 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, toRaw } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { initialEdges, initialNodes } from './initial-elements.js'
+
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
 import ToolbarNode from './CustomNode.vue'
 
 
-const { onPaneReady, onNodeDragStop, onConnect, addEdges, setViewport, toObject } = useVueFlow()
-const nodes = ref(initialNodes)
-const edges = ref(initialEdges)
+const props = defineProps(['mindmap'])
+const { onPaneReady, onConnect, addEdges, fromObject, toObject } = useVueFlow()
 
 onPaneReady(({ fitView }) => {
   fitView()
 })
 
-onNodeDragStop(({ event, nodes, node, intersections }) => {
-  console.log('Node Drag Stop', { event, nodes, node, intersections })
-})
+var nodes = ''
+var edges = ''
+
+nodes = ref(props.mindmap.nodes)
+edges = ref(props.mindmap.edges)
+
+console.log('executed')
 
 onConnect((connection) => {
   addEdges(connection)
 })
 
-
+let resizer = ref(false);
 
 function logNodes() {
   console.log(JSON.stringify(toObject()))
@@ -36,13 +40,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 
 <template>
   <div class="dndflow" @drop="onDrop">
-    <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver" @dragleave="onDragLeave">
+    <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver"
+      @dragleave="onDragLeave" @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
       <DropzoneBackground :style="{
     backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
     transition: 'background-color 0.2s ease',
   }" />
       <template #node-toolbar="nodeProps">
-        <ToolbarNode :data="nodeProps.data" :label="nodeProps.label" :act1="logNodes" />
+        <ToolbarNode :data="nodeProps.data" :resizer="resizer" :label="'test'" :act1="logNodes" />
       </template>
     </VueFlow>
 
@@ -87,29 +92,6 @@ body,
   z-index: 1
 }
 
-.dndflow aside {
-  color: #fff;
-  font-weight: 700;
-  border-right: 1px solid #eee;
-  padding: 15px 10px;
-  font-size: 12px;
-  background: rgba(16, 185, 129, .75);
-  -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, .3);
-  box-shadow: 0 5px 10px #0000004d
-}
-
-.dndflow aside .nodes>* {
-  margin-bottom: 10px;
-  cursor: grab;
-  font-weight: 500;
-  -webkit-box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, .25);
-  box-shadow: 5px 5px 10px 2px #00000040
-}
-
-.dndflow aside .description {
-  margin-bottom: 10px
-}
-
 .dndflow .vue-flow-wrapper {
   flex-grow: 1;
   height: 100%
@@ -120,17 +102,6 @@ body,
     flex-direction: row
   }
 
-  .dndflow aside {
-    min-width: 25%
-  }
-}
 
-@media screen and (max-width: 639px) {
-  .dndflow aside .nodes {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    z-index: 100;
-  }
 }
 </style>

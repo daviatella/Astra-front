@@ -1,118 +1,83 @@
 <template>
-  <IndentationRuler class="ruler" @applyIndentation="applyIndentation" />
-  <div class="page" ref="page">
-    <div style="height: 30px"></div>
-    <div class="page-2">
-    <v-textarea class="text-area" ref="textarea" flat scrollable variant="solo" auto-grow  no-resize v-model="text"  @input="handleInput"></v-textarea>
-  </div>
-  </div>
+    <v-tabs v-model="tab" align-tabs="center" class="tabs-bar">
+        <v-tab class="tab" value="tab-1" @click="toggleFlow(1)">
+            Document
+        </v-tab>
+
+        <v-tab class="tab" value="tab-2" @click="toggleFlow(2)">
+            Notes
+        </v-tab>
+
+        <v-tab class="tab" value="tab-3" @click="toggleFlow(3)">
+            MindMap
+        </v-tab>
+    </v-tabs>
+    <v-window v-model="tab">
+        <v-window-item :key="1" :value="'tab-' + 1">
+            <div class="choice">
+                <TextPanel :content="content.text" />
+            </div>
+        </v-window-item>
+        <v-window-item :key="2" :value="'tab-' + 2">
+            <div class="choice">
+                <NotesPanel />
+            </div>
+        </v-window-item>
+        <v-window-item :key="3" :value="'tab-' + 3">
+        </v-window-item>
+    </v-window>
+    <Flow v-if="isFlow" :mindmap="content.mindmap" />
+
 </template>
 
 <script>
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import TextPanel from './TextPanel.vue'
+import NotesPanel from './NotesPanel.vue';
+import Flow from '../Flow/Flow.vue';
+import { useDocsStore } from '@/store.js'
+
 
 export default {
-  components: {
-    QuillEditor
-  },
-  props: ['content'],
-  data() {
-    return {
-      text: ``,
-      rulerSteps: 10, 
-      currIndentation: 0
-    };
-  },
-  mounted() {
-    const textarea = this.$refs.textarea;
-    this.$refs.page.style.height = textarea.scrollHeight >= 1150 ? 50 + textarea.scrollHeight + 'px' : 1200 + 'px'
-    this.text = this.content.text
-
-  },
-  methods: {
-    handleInput(event) {
-      const textarea = this.$refs.textarea;
-      //textarea.style.height = textarea.scrollHeight + 'px';
-      this.$refs.page.style.height = textarea.scrollHeight >= 1150 ? 50 + textarea.scrollHeight + 'px' : 1200 + 'px'
-
-
-    },
-    newParagraph() {
-      const textarea = this.$refs.textarea;
-      const cursorPosition = textarea.selectionStart;
-      const textBeforeCursor = this.text.substring(0, cursorPosition);
-      const textAfterCursor = this.text.substring(cursorPosition);
-      const linesBeforeCursor = textBeforeCursor.split('\n');
-      const previousLineIndentation = "\t".repeat(this.currIndentation)
-
-      this.text = `${textBeforeCursor}${previousLineIndentation}${textAfterCursor}`;
-       textarea.selectionStart = textarea.selectionEnd = 540;
-       console.log(cursorPosition+this.currIndentation)
-    },
-    applyIndentation(indentation) {
-      let change = indentation - this.currIndentation;
-      let paragraphs = this.text.split('\n');
-      const indentedParagraphs = paragraphs.map(paragraph => {
-        let indentationSpaces = "";
-        if (indentation === 0) {
-          paragraph = paragraph.trimStart(); // Remove all existing indentation
-        } else if (change > 0 && paragraph.length > 0) {
-          indentationSpaces = "\t".repeat(change);
-        } else {
-          indentationSpaces = ""; // Reset indentationSpaces for negative change
-          for (let i = 0; i < -change; i++) {
-            paragraph = paragraph.replace(/^\t/, ''); // Remove one tab from the start for each negative change
-          }
+    props:['id'],
+    mounted() {
+        console.log(this.id)
+        const store = useDocsStore()
+        if(store.userDocs){
+            this.content = store.userDocs.filter(doc => doc._id ==this.id)[0].content
         }
-
-        return `${indentationSpaces}${paragraph}`;
-      });
-
-      // Join paragraphs back together with newlines
-      this.text = indentedParagraphs.join('\n');
-      this.currIndentation = indentation;
     },
-
-
-
-  }
-};
+    data() {
+        return {
+            tab: null,
+            isFlow: false
+        }
+    },
+    methods: {
+        toggleFlow(id) {
+            if (id == 3) {
+                this.isFlow = true;
+            } else {
+                this.isFlow = false;
+            }
+        }
+    }
+}
 </script>
 
 <style scoped>
-.page {
-  margin: auto;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  border-radius: 1px;
-  margin-bottom: 2rem;
-  height: 1200px;
-  /* or you can use height: 90vh; for 90% of viewport height */
-  width: 900px;
+.tabs-bar {
+    margin: auto;
+    margin-bottom: 0rem;
+    margin-top: 1rem;
 }
 
-.page-2 {
-  margin: auto;
-  border-radius: 1px;
-  margin-bottom: 2rem;
-  height: 1200px;
-  /* or you can use height: 90vh; for 90% of viewport height */
-  width: 800px;
+.tab {
+    border: 1px solid black;
+    z-index: 9;
 }
 
-.ruler {
-  margin: auto;
-  margin-top: 2rem;
+.choice {
+    z-index: 1;
+    margin-top: 1rem;
 }
-
-.indicator {
-  position: absolute;
-  top: 0;
-  height: 10px;
-  border-left: 1px solid #000;
-}
-
-.text-area {
-  width: 100%;
-  }
-</style>
+</style>./TextPanel.vue./NotesPanel.vue

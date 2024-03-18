@@ -3,7 +3,7 @@
     <v-spacer/>
     <v-text-field v-if="type == 'search'" :loading="loading" class="search-box" append-inner-icon="mdi-magnify"
       density="compact" label="Search" variant="outlined"></v-text-field>
-      <v-btn v-if="type == 'logo'" icon>
+      <v-btn @click="goToMainPage" v-if="type == 'logo'" icon>
         <img src="../assets/logo.png" />
       </v-btn>
     <v-spacer/>
@@ -18,6 +18,11 @@ export default {
   data: () => ({
 
   }),
+  methods: {
+    goToMainPage(){
+      this.$router.push('/')
+    }
+  }
 };
 </script>
 
