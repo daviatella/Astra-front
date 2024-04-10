@@ -3,7 +3,7 @@
     <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
   </v-overlay>
   <div v-if="!isLoading">
-    <CreateButtons @goDocs="toggleFlow" class="b-bar" />
+    <CreateButtons class="b-bar" />
     <v-container class="bg-deep-purple-lighten-5 doc-container">
       <v-row>
         <v-col v-for="(card, index) in cards" :key="index" cols="15" sm="2" md="4" lg="2">
@@ -17,7 +17,7 @@
               <v-img :src="getImagePath(card.type)" class="test"></v-img>
             </div>
             <footer class="card-footer">
-              <p class="card-footer-item">{{ card.count + ' words' || '5000 words' }}</p>
+              <p class="card-footer-item">{{ card.content.text.split(" ").length + ' words' || '5000 words' }}</p>
             </footer>
           </v-card>
         </v-col>

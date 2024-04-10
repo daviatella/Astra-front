@@ -3,7 +3,7 @@
   <div class="page" ref="page">
     <div style="height: 30px"></div>
     <div class="page-2">
-    <v-textarea class="text-area" ref="textarea" flat scrollable variant="solo" auto-grow  no-resize v-model="text"  @input="handleInput"></v-textarea>
+    <v-textarea class="text-area" ref="textarea" flat scrollable variant="solo" auto-grow  no-resize v-model="store.selectedDoc.content.text"  @input="handleInput"></v-textarea>
   </div>
   </div>
 </template>
@@ -11,6 +11,7 @@
 <script>
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { useDocsStore } from '@/store.js'
 
 export default {
   components: {
@@ -19,6 +20,7 @@ export default {
   props: ['content'],
   data() {
     return {
+      store: useDocsStore(), 
       text: ``,
       rulerSteps: 10, 
       currIndentation: 0
@@ -27,7 +29,6 @@ export default {
   mounted() {
     const textarea = this.$refs.textarea;
     this.$refs.page.style.height = textarea.scrollHeight >= 1150 ? 50 + textarea.scrollHeight + 'px' : 1200 + 'px'
-    this.text = this.content
   },
   methods: {
     handleInput(event) {
@@ -40,18 +41,18 @@ export default {
     newParagraph() {
       const textarea = this.$refs.textarea;
       const cursorPosition = textarea.selectionStart;
-      const textBeforeCursor = this.text.substring(0, cursorPosition);
-      const textAfterCursor = this.text.substring(cursorPosition);
+      const textBeforeCursor = this.store.selectedDoc.content.text.substring(0, cursorPosition);
+      const textAfterCursor = this.store.selectedDoc.content.text.substring(cursorPosition);
       const linesBeforeCursor = textBeforeCursor.split('\n');
       const previousLineIndentation = "\t".repeat(this.currIndentation)
 
-      this.text = `${textBeforeCursor}${previousLineIndentation}${textAfterCursor}`;
+      this.store.selectedDoc.content.text = `${textBeforeCursor}${previousLineIndentation}${textAfterCursor}`;
        textarea.selectionStart = textarea.selectionEnd = 540;
        console.log(cursorPosition+this.currIndentation)
     },
     applyIndentation(indentation) {
       let change = indentation - this.currIndentation;
-      let paragraphs = this.text.split('\n');
+      let paragraphs = this.store.selectedDoc.content.text.split('\n');
       const indentedParagraphs = paragraphs.map(paragraph => {
         let indentationSpaces = "";
         if (indentation === 0) {
@@ -69,7 +70,7 @@ export default {
       });
 
       // Join paragraphs back together with newlines
-      this.text = indentedParagraphs.join('\n');
+      this.store.selectedDoc.content.text = indentedParagraphs.join('\n');
       this.currIndentation = indentation;
     },
 

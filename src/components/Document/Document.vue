@@ -11,22 +11,26 @@
         <v-tab class="tab" value="tab-3" @click="toggleFlow(3)">
             MindMap
         </v-tab>
+        <v-btn class="save-button bg-deep-purple-lighten-1" @click="saveDoc">
+            Save
+        </v-btn>
     </v-tabs>
     <v-window v-model="tab">
         <v-window-item :key="1" :value="'tab-' + 1">
             <div class="choice">
-                <TextPanel :content="content.text" />
+                <TextPanel :content="selectedDoc" />
             </div>
         </v-window-item>
         <v-window-item :key="2" :value="'tab-' + 2">
             <div class="choice">
-                <NotesPanel />
+                <NotesPanel :content="selectedDoc" />
             </div>
         </v-window-item>
         <v-window-item :key="3" :value="'tab-' + 3">
         </v-window-item>
     </v-window>
-    <Flow v-if="isFlow" :mindmap="content.mindmap" />
+
+    <Flow ref="flow" v-if="isFlow" :selectedDoc="selectedDoc" />
 
 </template>
 
@@ -38,12 +42,14 @@ import { useDocsStore } from '@/store.js'
 
 
 export default {
-    props:['id'],
+    props: ['id'],
     mounted() {
         console.log(this.id)
         const store = useDocsStore()
-        if(store.userDocs){
-            this.content = store.userDocs.filter(doc => doc._id ==this.id)[0].content
+        if (store.userDocs) {
+            store.selectedDoc = store.userDocs.filter(doc => doc._id == this.id)[0]
+            this.selectedDoc = store.selectedDoc
+            store.mindmap = this.selectedDoc.content.mindmap
         }
     },
     data() {
@@ -59,14 +65,37 @@ export default {
             } else {
                 this.isFlow = false;
             }
+        },
+        async saveDoc() {
+            try {
+                const response = await fetch('http://localhost:4000/api/docs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.selectedDoc)
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const responseData = await response.json();
+                console.log(responseData)
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         }
     }
 }
 </script>
 
 <style scoped>
+.save-button {
+    margin-left: 200px;
+    margin-top: 10px;
+}
+
 .tabs-bar {
-    margin: auto;
+    margin-left: 16rem;
     margin-bottom: 0rem;
     margin-top: 1rem;
 }

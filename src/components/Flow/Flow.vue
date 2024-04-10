@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, toRaw } from 'vue'
+import { ref, onMounted, toRaw, onBeforeUnmount } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
-import { initialEdges, initialNodes } from './initial-elements.js'
+import { useDocsStore } from '@/store.js'
 
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
@@ -9,24 +9,24 @@ import useDragAndDrop from './useDnD'
 import ToolbarNode from './CustomNode.vue'
 
 
-const props = defineProps(['mindmap'])
+const props = defineProps(['selectedDoc'])
 const { onPaneReady, onConnect, addEdges, fromObject, toObject } = useVueFlow()
 
 onPaneReady(({ fitView }) => {
   fitView()
 })
 
-var nodes = ''
-var edges = ''
-
-nodes = ref(props.mindmap.nodes)
-edges = ref(props.mindmap.edges)
-
-console.log('executed')
+const store = useDocsStore()
 
 onConnect((connection) => {
   addEdges(connection)
 })
+
+function saveFlow(){
+  console.log("")
+}
+
+onBeforeUnmount(saveFlow)
 
 let resizer = ref(false);
 
@@ -40,12 +40,12 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 
 <template>
   <div class="dndflow" @drop="onDrop">
-    <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver"
-      @dragleave="onDragLeave" @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
+    <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @dragover="onDragOver" @dragleave="onDragLeave"
+      @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
       <DropzoneBackground :style="{
-    backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
-    transition: 'background-color 0.2s ease',
-  }" />
+        backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
+        transition: 'background-color 0.2s ease',
+      }" />
       <template #node-toolbar="nodeProps">
         <ToolbarNode :data="nodeProps.data" :resizer="resizer" :label="'test'" :act1="logNodes" />
       </template>
