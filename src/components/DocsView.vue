@@ -3,15 +3,32 @@
     <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
   </v-overlay>
   <div v-if="!isLoading">
-    <CreateButtons class="b-bar" />
+    <CreateButtons @create-doc="dialog = true, type = 'doc'" @create-board="dialog = true, type = 'board'"
+      class="b-bar" />
     <v-container class="bg-deep-purple-lighten-5 doc-container">
       <v-row>
         <v-col v-for="(card, index) in cards" :key="index" cols="15" sm="2" md="4" lg="2">
-          <v-card @click="goToDocument(card._id)" class="rounded-lg doc-card">
+          <v-card @click="goToDocument(card._id, card.type)" class="rounded-lg doc-card">
             <header class="card-header">
               <p class="card-header-title">
                 {{ card.title }}
               </p>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon="mdi-dots-vertical" variant="plain" v-bind="props" />
+                </template>
+                <v-list>
+                  <v-list-item @click="renameDoc(card)">
+                    <v-list-item-title>Rename Document</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="copyDoc(card)">
+                    <v-list-item-title>Create a Copy</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteDoc(card)">
+                    <v-list-item-title>Delete Document</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </header>
             <div class="content">
               <v-img :src="getImagePath(card.type)" class="test"></v-img>
@@ -23,22 +40,34 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-dialog v-model="dialog" width="auto">
+      <CreateModal :type="type" :doc="doc" @close-modal="dialog=false"/>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import CreateButtons from './CreateButtons.vue';
+import CreateModal from './CreateModal.vue'
 import { useDocsStore } from '@/store.js'
-import axios from 'axios'
-import { toRaw } from 'vue';
 
 export default {
   async mounted() {
     const store = useDocsStore()
     console.log(store.userDocs)
+    store.selectedDoc = '';
+    let b = {
+      owner: store.user
+    }
     if (!store.userDocs) {
       try {
-        const response = await fetch('http://localhost:4000/api/docs-by-type');
+        const response = await fetch('http://localhost:4000/api/docs-by-owner', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(b)
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -50,22 +79,40 @@ export default {
         console.error('Error fetching data:', error);
       }
     } else {
-      this.cards =store.userDocs
-      this.isLoading=false;
+      this.cards = store.userDocs
+      this.isLoading = false;
     }
   },
   data: () => ({
     cards: [],
-    isLoading: true
+    doc: '',
+    isLoading: true,
+    dialog: false,
+    type: ''
   }),
   emits: ['goDocs'],
   methods: {
-    goToDocument(id) {
+    goToDocument(id, type) {
       console.log(id)
-      this.$router.push('/document/' + id)
+      if (type == 'doc') {
+        this.$router.push('/document/' + id)
+      } else {
+        this.$router.push('/board/' + id)
+      }
     },
     getImagePath(type) {
       return new URL(`../assets/${type}-icon.png`, import.meta.url).href
+    },
+    renameDoc(doc) {
+      this.dialog = true
+       this.type = 'update'
+       this.doc = doc;
+    },
+    copyDoc(doc) {
+      console.log(doc)
+    },
+    deleteDoc(doc) {
+      console.log(doc)
     }
   }
 };
@@ -75,6 +122,8 @@ export default {
 p {
   font-family: Space Grotesk, sans-serif;
 }
+
+
 
 .logo {
   height: auto;

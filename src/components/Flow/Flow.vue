@@ -9,7 +9,7 @@ import useDragAndDrop from './useDnD'
 import ToolbarNode from './CustomNode.vue'
 
 
-const props = defineProps(['selectedDoc'])
+const props = defineProps(['id'])
 const { onPaneReady, onConnect, addEdges, fromObject, toObject } = useVueFlow()
 
 onPaneReady(({ fitView }) => {
@@ -18,15 +18,14 @@ onPaneReady(({ fitView }) => {
 
 const store = useDocsStore()
 
+if (props.id) {
+  console.log(props.id)
+  store.selectedDoc = store.userDocs.filter(doc => doc._id == props.id)[0]
+}
+
 onConnect((connection) => {
   addEdges(connection)
 })
-
-function saveFlow(){
-  console.log("")
-}
-
-onBeforeUnmount(saveFlow)
 
 let resizer = ref(false);
 
@@ -39,6 +38,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 
 
 <template>
+
   <div class="dndflow" @drop="onDrop">
     <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @dragover="onDragOver" @dragleave="onDragLeave"
       @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
@@ -70,6 +70,8 @@ body,
   margin: 0;
   height: 100%;
 }
+
+
 
 #app {
   text-transform: uppercase;

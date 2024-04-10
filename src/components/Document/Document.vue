@@ -76,10 +76,12 @@ export default {
                     body: JSON.stringify(this.selectedDoc)
                 });
                 if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                    console.log(response)
+                    throw new Error(response);
                 }
                 const responseData = await response.json();
                 console.log(responseData)
+                this.selectedDoc._rev=responseData.data.rev
             } catch (error) {
                 console.error('Error fetching data:', error);
             }

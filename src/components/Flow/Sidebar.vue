@@ -1,11 +1,36 @@
 <script setup>
 import useDragAndDrop from './useDnD'
 import styles from './nodes.style.js'
+import { useDocsStore } from '@/store.js'
 
 const { onDragStart } = useDragAndDrop()
+const store = useDocsStore()
+
+async function saveFlow() {
+  try {
+    const response = await fetch('http://localhost:4000/api/docs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(store.selectedDoc)
+    });
+    if (!response.ok) {
+      console.log(response)
+      throw new Error(response);
+    }
+    const responseData = await response.json();
+    store.selectedDoc._rev = responseData.data.rev
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
 </script>
 <template>
   <aside> 
+    <v-btn v-if="true" class="save-button bg-deep-purple-lighten-1" @click="saveFlow">
+    Save
+  </v-btn>
     <div class="vue-flow__node-input node" :draggable="true" @dragstart="(event) => onDragStart(event, 'input' )">
       Input Node
     </div>
@@ -37,8 +62,14 @@ const { onDragStart } = useDragAndDrop()
   box-shadow: 0 5px 10px #0000004d
 }
 
+.save-button {
+  margin-left: 65px;
+    margin-bottom: 2em;
+}
+
  .node {
   margin-bottom: 40px;
+  margin-left: 30px;
   cursor: grab;
   font-weight: 500;
   -webkit-box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, .25);
