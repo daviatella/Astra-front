@@ -5,9 +5,10 @@
   <div v-if="!isLoading">
     <CreateButtons @create-doc="dialog = true, type = 'doc'" @create-board="dialog = true, type = 'board'"
       class="b-bar" />
-    <v-container class="bg-deep-purple-lighten-5 doc-container">
+      <v-text-field v-model="searchQuery" label="Search" variant="outlined" dense class="container w-50 mt-5"></v-text-field>
+    <v-container class="bg-deep-purple-lighten-5 mb-5 doc-container">
       <v-row>
-        <v-col v-for="(card, index) in cards" :key="index" cols="15" sm="2" md="4" lg="2">
+        <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="2" md="2" lg="2">
           <v-card @click="goToDocument(card._id, card.type)" class="rounded-lg doc-card">
             <header class="card-header">
               <p class="card-header-title">
@@ -41,7 +42,7 @@
       </v-row>
     </v-container>
     <v-dialog v-model="dialog" width="auto">
-      <CreateModal :type="type" :doc="doc" @close-modal="dialog=false"/>
+      <CreateModal :type="type" :doc="doc" @close-modal="dialog = false" />
     </v-dialog>
   </div>
 </template>
@@ -53,13 +54,12 @@ import { useDocsStore } from '@/store.js'
 
 export default {
   async mounted() {
-    const store = useDocsStore()
-    console.log(store.userDocs)
-    store.selectedDoc = '';
+    this.store = useDocsStore()
+    this.store.selectedDoc = '';
     let b = {
-      owner: store.user
+      owner: this.store.user
     }
-    if (!store.userDocs) {
+    if (!this.store.userDocs) {
       try {
         const response = await fetch('http://localhost:4000/api/docs-by-owner', {
           method: 'POST',
@@ -72,28 +72,37 @@ export default {
           throw new Error('Failed to fetch data');
         }
         const responseData = await response.json();
-        this.cards = responseData.data;
-        store.$state = { userDocs: responseData.data }
+        this.store.$state = { userDocs: responseData.data }
         this.isLoading = false;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     } else {
-      this.cards = store.userDocs
       this.isLoading = false;
     }
   },
   data: () => ({
-    cards: [],
     doc: '',
     isLoading: true,
     dialog: false,
-    type: ''
+    type: '',
+    searchQuery: ''
   }),
+  computed: {
+    userDocs() {
+      return this.store.userDocs;
+    },
+    filteredDocs() {
+      const query = this.searchQuery.toLowerCase();
+      return this.userDocs.filter(doc =>
+        doc.title.toLowerCase().includes(query)||
+        doc.content.text.toLowerCase().includes(query)
+      );
+    }
+  },
   emits: ['goDocs'],
   methods: {
     goToDocument(id, type) {
-      console.log(id)
       if (type == 'doc') {
         this.$router.push('/document/' + id)
       } else {
@@ -105,14 +114,16 @@ export default {
     },
     renameDoc(doc) {
       this.dialog = true
-       this.type = 'update'
-       this.doc = doc;
+      this.type = 'update'
+      this.doc = doc;
     },
     copyDoc(doc) {
       console.log(doc)
     },
     deleteDoc(doc) {
-      console.log(doc)
+      this.dialog = true
+      this.type = 'delete'
+      this.doc = doc;
     }
   }
 };
@@ -122,8 +133,6 @@ export default {
 p {
   font-family: Space Grotesk, sans-serif;
 }
-
-
 
 .logo {
   height: auto;
@@ -141,12 +150,12 @@ p {
 }
 
 .doc-card {
-  max-width: 15rem;
+  max-width: 11rem;
   margin: auto;
 }
 
 .doc-container {
-  width: 1800px;
+  width: 1400px;
   margin: auto;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 10px;
@@ -154,8 +163,7 @@ p {
 }
 
 .content {
-  height: 10rem;
-  /* Adjust the height as needed */
+  height: 5rem; /* Adjust the height as needed */
   display: flex;
   justify-content: center;
   align-items: center;

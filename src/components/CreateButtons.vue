@@ -4,7 +4,7 @@
         <v-btn icon="mdi-plus" @click="createDocument" class="circle-button" @mouseenter="expandRectangle(1)" @mouseleave="retractRectangle(1)">
           + 
         </v-btn>
-        <a class="rectangle-link" @mouseenter="expandRectangle(1)" @mouseleave="retractRectangle(1)">
+        <a class="rectangle-link" @click="createDocument" @mouseenter="expandRectangle(1)" @mouseleave="retractRectangle(1)">
           <div class="rectangle"
                :style="{ width: rectangleWidth[0] + 'rem', backgroundColor: expanded[0] ? '#EDE7F6' : 'white', color: expanded[0] ? 'black' : 'white' }">
             <p v-if="expanded[0]" class="buttonText">Create Doc</p>
@@ -13,7 +13,7 @@
       </div>
       <div class="button-container" :style="{ marginLeft: expanded[0] ? totalExpandedWidth + 'rem' : '1rem' }">
         <v-btn icon="mdi-plus" @click="createBoard" class="circle-button" style="background-color: #E86000;" @mouseenter="expandRectangle(2)" @mouseleave="retractRectangle(2)"> + </v-btn>
-        <a  class="rectangle-link" @mouseenter="expandRectangle(2)" @mouseleave="retractRectangle(2)">
+        <a  class="rectangle-link" @click="createBoard" @mouseenter="expandRectangle(2)" @mouseleave="retractRectangle(2)">
           <div class="rectangle"
                :style="{ width: rectangleWidth[1] + 2 + 'rem', backgroundColor: expanded[1] ? '#FADECB' : 'white', color: expanded[1] ? 'black' : 'white' }">
             <p v-if="expanded[1]" class="buttonText">Create Board</p>
@@ -52,7 +52,6 @@
         this.$emit('createDoc');
       },
       createBoard() {
-        console.log(5555)
         this.$emit('createBoard');
       }
     }
