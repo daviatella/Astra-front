@@ -1,39 +1,45 @@
 <template>
-  <v-toolbar  :elevation="1" density="comfortable" :color="'deep-purple-lighten-5'">
-    <v-spacer/>
-    <v-text-field v-if="type == 'search'" :loading="loading" class="search-box" append-inner-icon="mdi-magnify"
-      density="compact" label="Search" variant="outlined"></v-text-field>
-      <v-btn @click="goToMainPage" v-if="type == 'logo'" icon>
-        <img src="../assets/logo.png" />
-      </v-btn>
-    <v-spacer/>
-  </v-toolbar>
+  <v-app-bar :elevation="1" density="comfortable" :color="'deep-purple-lighten-5'">
+    <v-btn @click="goToMainPage" class="ml-4" v-if="type === 'logo'" icon>
+      <img src="../assets/logo.png" />
+    </v-btn>
+
+
+    <v-spacer />
+    <v-text-field v-model="searchQuery" :loading="loading" class="search-box" append-inner-icon="mdi-magnify"
+      density="compact" placeholder="Search" :clearable="true" variant="solo" @input="updateSearch"></v-text-field>
+    <v-spacer />
+    <v-btn @click="goToMainPage" class="mr-5 rounded-circle" v-if="type === 'logo'" icon>
+      <img class="rounded-circle" src="https://randomuser.me/api/portraits/women/81.jpg" />
+    </v-btn>
+  </v-app-bar>
 </template>
 
 <script>
 export default {
-  props: [
-    'type'
-  ],
-  data: () => ({
-
-  }),
+  props: ['type'],
+  data() {
+    return {
+      searchQuery: '',
+      loading: false,
+    };
+  },
   methods: {
-    goToMainPage(){
-      this.$router.push('/')
-    }
-  }
+    goToMainPage() {
+      this.$router.push('/');
+    },
+    updateSearch() {
+      this.$emit('update-search', this.searchQuery);
+    },
+  },
 };
 </script>
 
 <style>
-
-
 .search-box {
   max-width: 50rem;
   margin: auto;
   margin-top: 0.5rem;
   font-family: Space Grotesk, sans-serif;
 }
-
 </style>

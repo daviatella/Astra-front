@@ -60,7 +60,7 @@
   
   <style scoped>
   .buttons-bar {
-    margin: auto;
+    margin-left: 650px;
     margin-top: 1rem;
     width: fit-content;
   }

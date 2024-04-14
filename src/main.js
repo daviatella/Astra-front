@@ -19,8 +19,6 @@ import App from './App.vue'
 // Composables
 import { createApp } from 'vue'
 
-console.log(router)
-
 const app = createApp(App)
 const pinia = createPinia()
 app.use(Buefy);

@@ -1,8 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <TopBar type="logo"/>
-      <RouterView/>
+      <RouterView />
     </v-main>
   </v-app>
 </template>
@@ -11,12 +10,15 @@
 import TopBar from './components/TopBar.vue';
 
 export default {
-    data() {
-        return {
+  data() {
+    return {
+      searchQuery: '',
+    };
+  },
+  methods: {
 
-        };
-    },
-    components: {TopBar}
+  },
+  components: { TopBar }
 };
 
 </script>
