@@ -2,34 +2,33 @@
   <v-overlay :model-value="isLoading" class="align-center justify-center">
     <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
   </v-overlay>
-  <TopBar @update-search="updateSearchQuery" type="logo" />
+  <TopBar @update-search="updateSearchQuery" :search="true" />
   <div v-if="!isLoading">
     <HomeSidebar></HomeSidebar>
-    <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')"
-      class="b-bar" />
+    <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')" class="b-bar" />
     <v-container class="bg-deep-purple-lighten-5 mb-5 doc-container">
       <v-row>
         <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="2" md="2" lg="2">
           <v-card @click="goToDocument(card._id, card.type)" class="rounded-lg doc-card">
             <header class="card-header">
               <div style="width:85%">
-              <p class="card-header-title text-truncate">
-                {{ card.title }}
-              </p>
-            </div>
+                <p class="card-header-title text-truncate">
+                  {{ card.title }}
+                </p>
+              </div>
               <v-menu>
 
                 <template v-slot:activator="{ props }">
                   <v-btn icon="mdi-dots-vertical" size="small" class="ml-3" variant="plain" v-bind="props" />
                 </template>
                 <v-list>
-                  <v-list-item @click="openModal('update',card)">
+                  <v-list-item @click="openModal('update', card)">
                     <v-list-item-title>Update Nexus</v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="openModal('',card)">
+                  <v-list-item @click="openModal('', card)">
                     <v-list-item-title>Create a Copy</v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="openModal('delete',card)">
+                  <v-list-item @click="openModal('delete', card)">
                     <v-list-item-title>Delete Nexus</v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -48,8 +47,8 @@
     <v-dialog v-model="dialog" width="auto">
       <CreateModal :type="type" :doc="doc" @close-modal="closeModal" />
     </v-dialog>
-    <v-snackbar v-model="msgShow" :timeout="4000" color="yellow" class="mb-16" rounded="pill">
-    {{ msgContent }}
+    <v-snackbar v-model="msgShow" :timeout="4000" :color="msgColor" class="mb-16" rounded="pill">
+      {{ msgContent }}
     </v-snackbar>
   </div>
 </template>
@@ -88,7 +87,7 @@ export default {
     } else {
       this.isLoading = false;
     }
-    await this.getUserInfo("daviatella","123")
+    await this.getUserInfo("daviatella", "123")
   },
   data: () => ({
     doc: '',
@@ -96,7 +95,8 @@ export default {
     dialog: false,
     type: '',
     searchQuery: '',
-    msgShow: false
+    msgShow: false,
+    msgColor: ''
   }),
   computed: {
     userDocs() {
@@ -125,13 +125,17 @@ export default {
     getImagePath(type) {
       return new URL(`../assets/${type}-icon.png`, import.meta.url).href
     },
-    closeModal(msg){
-      this.dialog=false;
-      this.msgShow=true;
-      this.msgContent=msg
+    closeModal(msg, color) {
+      this.dialog = false;
+      if (typeof msg == 'string') {
+        this.msgShow = true;
+        this.msgContent = msg
+        this.msgColor =color
+      }
+
     },
-    openModal(type, doc){
-      this.dialog=true;
+    openModal(type, doc) {
+      this.dialog = true;
       this.type = type
       this.doc = doc;
     },
@@ -208,7 +212,7 @@ p {
 .card-header .v-btn {
   position: absolute;
   top: 0.2rem;
-  right: 0.01rem; 
+  right: 0.01rem;
 }
 
 .doc-card {
@@ -218,7 +222,7 @@ p {
 
 .doc-container {
   width: 1400px;
-  margin: auto;
+  margin-right: 10rem;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 10px;
   margin-top: 2rem;

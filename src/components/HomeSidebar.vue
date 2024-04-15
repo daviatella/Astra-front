@@ -1,38 +1,50 @@
 <template>
-   <v-navigation-drawer
-        location="left"
-        class="bg-deep-purple-lighten-5"
-      >
-        <v-list class="mt-2 text" >
-          <v-list-item  prepend-icon="mdi-file-document-multiple" title="Documents" value="home"></v-list-item>
-          <v-list-item prepend-icon="mdi-folder-multiple" title="Projects" value="account"></v-list-item>
-          <v-list-item  prepend-icon="mdi-tag-multiple" title="Tags" value="users"></v-list-item>
-        </v-list>
-      </v-navigation-drawer>
-  </template>
-  
-  <script>  
+  <v-navigation-drawer location="left" class="bg-deep-purple-lighten-5 sidebar" width="5rem">
+    <v-list class="mt-2 text">
+      <v-list-item prepend-icon="mdi-file-document-multiple" value="home">
+        <template v-slot:title="{}">
+          <div v-html="'Documents'"></div>
+        </template>
+      </v-list-item>
+      <v-list-item prepend-icon="mdi-folder-multiple" title="Projects" value="account">
+        <template v-slot:title="{}">
+          <div class="sidebar" v-html="'Projects'"></div>
+        </template>
+      </v-list-item>
+      <v-list-item prepend-icon="mdi-tag-multiple" title="Tags" value="tags">
+        <template v-slot:title="{}">
+          <div class="sidebar" v-html="'Tags'"></div>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+</template>
 
-  export default {
-    data() {
-      return {
+<script>
 
-      };
-    },
-    methods: {
-     
-    }
-  };
-  </script>
-  
-  <style scoped>
- .login-info {
+export default {
+  data() {
+    return {
+
+    };
+  },
+  methods: {
+
+  }
+};
+</script>
+
+<style scoped>
+.login-info {
   margin-bottom: -1em;
- }
+}
 
- .text {
+.sidebar {
+  text-align: left;
+}
+
+.text {
   font-family: Space Grotesk, sans-serif;
   justify-content: left;
- }
-  </style>
-  
+}
+</style>

@@ -5,6 +5,8 @@ import { useDocsStore } from '@/store.js'
 
 const { onDragStart } = useDragAndDrop()
 const store = useDocsStore()
+const props = defineProps(['isFlow'])
+console.log(props.isFlow)
 
 async function saveFlow() {
   try {
@@ -27,60 +29,61 @@ async function saveFlow() {
 }
 </script>
 <template>
-  <aside> 
-    <v-btn v-if="true" class="save-button bg-deep-purple-lighten-1" @click="saveFlow">
-    Save
-  </v-btn>
-    <div class="vue-flow__node-input node" :draggable="true" @dragstart="(event) => onDragStart(event, 'input' )">
-      Input Node
-    </div>
-    <div class="vue-flow__node-default node" :draggable="true" @dragstart="(event) => onDragStart(event, 'default')">
-      Default Node
-    </div>
-    <div class="vue-flow__node-output node" :draggable="true" @dragstart="(event) => onDragStart(event, 'output')">
-      Output Node
-    </div>
-    <div class="vue-flow__node-custom node" :draggable="true" @dragstart="(event) => onDragStart(event, 'toolbar', styles.toolbar)">
-      Toolbar Node
+  <aside>
+    <v-btn v-if="props.isFlow != undefined" class="save-button bg-deep-purple-lighten-1" @click="saveFlow">
+      Save
+    </v-btn>
+    <div class="mt-5 mr-3">
+      <div class="vue-flow__node-input node" :draggable="true" @dragstart="(event) => onDragStart(event, 'input')">
+        Input Node
+      </div>
+      <div class="vue-flow__node-default node" :draggable="true" @dragstart="(event) => onDragStart(event, 'default')">
+        Default Node
+      </div>
+      <div class="vue-flow__node-output node" :draggable="true" @dragstart="(event) => onDragStart(event, 'output')">
+        Output Node
+      </div>
+      <div class="vue-flow__node-custom node" :draggable="true"
+        @dragstart="(event) => onDragStart(event, 'toolbar', styles.toolbar)">
+        Toolbar Node
+      </div>
     </div>
   </aside>
 </template>
 
 <style scoped>
-
-
- aside {
+aside {
   color: #fff;
   font-weight: 700;
   border-right: 1px solid #eee;
   padding: 15px 10px;
   justify-content: center;
-  width: 20%;
   font-size: 12px;
   background: rgba(205, 142, 221, 0.75);
   -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, .3);
-  box-shadow: 0 5px 10px #0000004d
+  box-shadow: 0 5px 10px #0000004d;
+  height: fit-content;
 }
 
 .save-button {
   margin-left: 65px;
-    margin-bottom: 2em;
+  margin-bottom: 2em;
 }
 
- .node {
+.node {
   margin-bottom: 40px;
   margin-left: 30px;
   cursor: grab;
   font-weight: 500;
   -webkit-box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, .25);
   box-shadow: 5px 5px 10px 2px #00000040;
- }
+}
 
- .vue-flow__node-custom {
-    background: #9CA8B3;
-    color: #fff;
-    padding: 10px;
-    padding: 10px;
+.vue-flow__node-custom {
+  background: #9CA8B3;
+  color: #fff;
+  padding: 10px;
+  padding: 10px;
   border-radius: 3px;
   width: 150px;
   font-size: 12px;

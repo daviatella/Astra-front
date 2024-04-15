@@ -7,7 +7,7 @@
         <a class="rectangle-link" @click="createDocument" @mouseenter="expandRectangle(1)" @mouseleave="retractRectangle(1)">
           <div class="rectangle"
                :style="{ width: rectangleWidth[0] + 'rem', backgroundColor: expanded[0] ? '#EDE7F6' : 'white', color: expanded[0] ? 'black' : 'white' }">
-            <p v-if="expanded[0]" class="buttonText">Create Doc</p>
+            <p v-if="expanded[0]" class="buttonText">Create Nexus</p>
           </div>
         </a>
       </div>
@@ -60,7 +60,7 @@
   
   <style scoped>
   .buttons-bar {
-    margin-left: 650px;
+    margin: auto;
     margin-top: 1rem;
     width: fit-content;
   }

@@ -1,38 +1,48 @@
 <template>
     <v-overlay :model-value="isLoading" class="align-center justify-center">
-        <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
     </v-overlay>
     <v-card v-if="this.type != 'delete'" class="modal rounded-lg">
         <div class="text bg-banner" :class="{ 'bg-purple': this.type == 'doc', 'bg-orange': this.type == 'board' }">
-            <v-card-title>Create {{ this.type == 'doc' ? 'Nexus' : 'Board' }}</v-card-title>
+            <v-card-title>{{ this.doc ? "Update" : "Create" }} {{ this.type == 'doc' ? 'Nexus' : 'Board'
+                }}</v-card-title>
         </div>
         <v-card-text class="w-100">
             <v-text-field label="Title" v-model="title" class="w-75 m-auto" variant="outlined"></v-text-field>
             <v-divider class="mt-n2"></v-divider>
             <v-card-title class="text mt-n5"> Tags </v-card-title>
-            <v-autocomplete v-model="currentTagNames" variant="outlined" :items="tags" color="blue-grey-lighten-2"
-                item-title="name" item-value="raw" label="Select" chips closable-chips multiple>
+            <div style="display: flex; align-items: center;">
+                <v-autocomplete v-model="currentTagNames" variant="outlined" :items="tags" color="blue-grey-lighten-2"
+                    item-title="name" item-value="raw" label="Select" chips closable-chips multiple>
 
-                <template v-slot:chip="{ props, item }">
-                    <v-chip v-bind="props" @click:close="removeTag(item.raw)" :color="item.raw.color"
-                        variant="flat"><v-icon :icon="item.raw.icon"></v-icon>{{ item.raw.name }}</v-chip>
-                </template>
+                    <template v-slot:chip="{ props, item }">
+                        <v-chip v-bind="props" @click:close="removeTag(item.raw)" :color="item.raw.color"
+                            variant="flat"><v-icon :icon="item.raw.icon"></v-icon>{{ item.raw.name }}</v-chip>
+                    </template>
 
-                <template v-slot:item="{ props, item }">
-                    <v-list-item v-bind="props" :title="item.raw.name" @click="handleTagSelection(item.raw)"
-                        :subtitle="item.raw.title">
-                        <template v-slot:prepend>
-                            <v-icon :icon="item.raw.icon"></v-icon>
-                        </template>
-                    </v-list-item>
-                </template>
+                    <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props" :title="item.raw.name" @click="handleTagSelection(item.raw)"
+                            :subtitle="item.raw.title">
+                            <template v-slot:prepend>
+                                <v-icon :icon="item.raw.icon"></v-icon>
+                            </template>
+                        </v-list-item>
+                    </template>
 
-            </v-autocomplete>
+                </v-autocomplete>
+                <v-tooltip location="top" text="Create Tag">
+                    <template v-slot:activator="{ props }">
+                        <v-btn icon="mdi-plus" v-bind="props" variant="solo" class="ml-3 mb-4 bg-grey-lighten-2"
+                            @click="toggleTagModal(true)"></v-btn>
+                    </template>
+                </v-tooltip>
+            </div>
         </v-card-text>
         <div class="text bg-banner" :class="{ 'bg-purple': this.type == 'doc', 'bg-orange': this.type == 'board' }">
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn variant="outlined" @click="this.doc?updateDoc():createDoc()">Create</v-btn>
+                <v-btn variant="outlined" @click="this.doc ? updateDoc() : createDoc()">{{ this.doc ? "Update" :
+                    "Create"
+                    }}</v-btn>
                 <v-btn variant="outlined" @click="closeModal">Cancel</v-btn>
                 <v-spacer></v-spacer>
             </v-card-actions>
@@ -58,10 +68,14 @@
             </v-card-actions>
         </div>
     </v-card>
+    <v-dialog v-model="tagModal" width="auto">
+        <TagModal @closeModal="toggleTagModal(false)"></TagModal>
+    </v-dialog>
 </template>
 
 <script>
 import { useDocsStore } from '@/store.js'
+import TagModal from './TagModal.vue';
 
 export default {
     props: [
@@ -95,6 +109,7 @@ export default {
             isLoading: false,
             currentTags: [],
             currentTagNames: [],
+            tagModal:false
         }
     },
     methods: {
@@ -102,6 +117,9 @@ export default {
             this.currentTags = this.currentTags.filter((tag) => {
                 return JSON.stringify(tag) != JSON.stringify(chip)
             })
+        },
+        toggleTagModal(val){
+            this.tagModal=val
         },
         handleTagSelection(item) {
             if (!this.currentTags.includes(item)) {
@@ -153,7 +171,7 @@ export default {
                 }
 
             } catch (error) {
-                console.error('Error fetching data:', error);
+                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
             }
         },
 
@@ -184,10 +202,11 @@ export default {
                     selectedDoc.tags = this.currentTags
                     selectedDoc._rev = responseData.data.rev
                     this.isLoading = false;
-                    this.closeModal("document updated successfully")
+                    this.closeModal("Document Updated Successfully", "green")
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
+                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
             }
         },
 
@@ -216,15 +235,16 @@ export default {
                     console.log("second - " + this.store.userDocs.length)
 
                     this.isLoading = false;
-                    this.closeModal()
+                    this.closeModal("Document Deleted Successfully", "green")
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
+                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
             }
         },
 
-        closeModal(msg) {
-            this.$emit("closeModal", msg)
+        closeModal(msg, color) {
+            this.$emit("closeModal", msg, color)
         }
 
     }
@@ -238,15 +258,13 @@ export default {
     justify-content: center;
 }
 
-
-
 .bg-banner {
     width: 100%;
 }
 
 .modal {
     width: 800px;
-    height: 350px;
+    height: fit-content;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 20px;
 }

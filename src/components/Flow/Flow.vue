@@ -2,7 +2,7 @@
 import { ref, onMounted, toRaw, onBeforeUnmount } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { useDocsStore } from '@/store.js'
-
+import TopBar from '../TopBar.vue';
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
@@ -38,7 +38,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 
 
 <template>
-
+  <TopBar v-if="props.id"></TopBar>
   <div class="dndflow" @drop="onDrop">
     <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @dragover="onDragOver" @dragleave="onDragLeave"
       @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
@@ -51,7 +51,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
       </template>
     </VueFlow>
 
-    <Sidebar />
+    <Sidebar :isFlow="props.id" />
   </div>
 </template>
 
