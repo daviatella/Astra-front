@@ -3,8 +3,6 @@
     <v-btn @click="goToMainPage" class="ml-4" icon>
       <img src="../assets/logo.png" />
     </v-btn>
-
-
     <v-spacer />
     <v-text-field v-model="searchQuery" :loading="loading" class="search-box" append-inner-icon="mdi-magnify"
       density="compact" placeholder="Search" v-if="search==true" :clearable="true" variant="solo" @input="updateSearch"></v-text-field>

@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer location="left" class="bg-deep-purple-lighten-5 sidebar" width="5rem">
     <v-list class="mt-2 text">
-      <v-list-item prepend-icon="mdi-file-document-multiple" value="home">
+      <v-list-item prepend-icon="mdi-file-document-multiple" to="/" value="home">
         <template v-slot:title="{}">
           <div v-html="'Documents'"></div>
         </template>
@@ -11,7 +11,7 @@
           <div class="sidebar" v-html="'Projects'"></div>
         </template>
       </v-list-item>
-      <v-list-item prepend-icon="mdi-tag-multiple" title="Tags" value="tags">
+      <v-list-item prepend-icon="mdi-tag-multiple" title="Tags" to="/tags/" value="tags">
         <template v-slot:title="{}">
           <div class="sidebar" v-html="'Tags'"></div>
         </template>

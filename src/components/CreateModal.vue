@@ -1,5 +1,6 @@
 <template>
     <v-overlay :model-value="isLoading" class="align-center justify-center">
+        <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
     </v-overlay>
     <v-card v-if="this.type != 'delete'" class="modal rounded-lg">
         <div class="text bg-banner" :class="{ 'bg-purple': this.type == 'doc', 'bg-orange': this.type == 'board' }">
@@ -11,19 +12,21 @@
             <v-divider class="mt-n2"></v-divider>
             <v-card-title class="text mt-n5"> Tags </v-card-title>
             <div style="display: flex; align-items: center;">
-                <v-autocomplete v-model="currentTagNames" variant="outlined" :items="tags" color="blue-grey-lighten-2"
-                    item-title="name" item-value="raw" label="Select" chips closable-chips multiple>
+                <v-autocomplete v-model="currentTagNames" :key="loader" variant="outlined" :items="tags"
+                    color="blue-grey-lighten-2" item-title="name" item-value="raw" label="Select" chips closable-chips
+                    multiple>
 
                     <template v-slot:chip="{ props, item }">
                         <v-chip v-bind="props" @click:close="removeTag(item.raw)" :color="item.raw.color"
-                            variant="flat"><v-icon :icon="item.raw.icon"></v-icon>{{ item.raw.name }}</v-chip>
+                            variant="flat"><v-icon v-if="item.raw.icon" :icon="'mdi-' + item.raw.icon"></v-icon>{{
+                                item.raw.name }}</v-chip>
                     </template>
 
                     <template v-slot:item="{ props, item }">
                         <v-list-item v-bind="props" :title="item.raw.name" @click="handleTagSelection(item.raw)"
                             :subtitle="item.raw.title">
                             <template v-slot:prepend>
-                                <v-icon :icon="item.raw.icon"></v-icon>
+                                <v-icon :icon="'mdi-' + item.raw.icon"></v-icon>
                             </template>
                         </v-list-item>
                     </template>
@@ -32,7 +35,7 @@
                 <v-tooltip location="top" text="Create Tag">
                     <template v-slot:activator="{ props }">
                         <v-btn icon="mdi-plus" v-bind="props" variant="solo" class="ml-3 mb-4 bg-grey-lighten-2"
-                            @click="toggleTagModal(true)"></v-btn>
+                            @click="tagModal = true"></v-btn>
                     </template>
                 </v-tooltip>
             </div>
@@ -47,6 +50,7 @@
                 <v-spacer></v-spacer>
             </v-card-actions>
         </div>
+        <!--  -->
     </v-card>
     <v-card v-if="this.type == 'delete'" class="small-modal rounded-lg">
         <div class="text bg-banner bg-red-lighten-1">
@@ -69,7 +73,7 @@
         </div>
     </v-card>
     <v-dialog v-model="tagModal" width="auto">
-        <TagModal @closeModal="toggleTagModal(false)"></TagModal>
+        <TagModal @closeModal="toggleTagModal"></TagModal>
     </v-dialog>
 </template>
 
@@ -83,15 +87,7 @@ export default {
         'doc'
     ],
     mounted() {
-        let tagsInfo = this.store.userInfo.tags
-        this.tags = []
-
-        for (let c of tagsInfo) {
-            for (let t of c.items) {
-                t.title = c.title;
-            }
-            this.tags.push(...c.items)
-        }
+        this.updateTags()
         if (this.doc) {
             if (this.doc.tags) {
                 this.currentTags = this.doc.tags
@@ -109,7 +105,8 @@ export default {
             isLoading: false,
             currentTags: [],
             currentTagNames: [],
-            tagModal:false
+            tagModal: false,
+            loader: 0
         }
     },
     methods: {
@@ -118,12 +115,32 @@ export default {
                 return JSON.stringify(tag) != JSON.stringify(chip)
             })
         },
-        toggleTagModal(val){
-            this.tagModal=val
+        updateTags() {
+            let tagsInfo = this.store.userInfo.tags
+            this.tags = []
+
+            for (let c of tagsInfo) {
+                for (let t of c.items) {
+                    t.title = c.title;
+                }
+                this.tags.push(...c.items)
+            }
+            this.loader++;
+        },
+        toggleTagModal(tagCreated) {
+            if (tagCreated) {
+                this.updateTags()
+            }
+            this.tagModal = false
         },
         handleTagSelection(item) {
             if (!this.currentTags.includes(item)) {
                 this.currentTags.push(item)
+            }
+        },
+        removeExtraTags(){
+            if(this.currentTags.length!=this.currentTagNames.length){
+                this.currentTags = this.currentTags.filter(el => this.currentTagNames.includes(el.name))
             }
         },
         async createDoc() {
@@ -131,26 +148,21 @@ export default {
             let method = "POST"
             let newDoc = {}
             let id = ''
-            if (this.doc) {
-                method = "PUT"
-                id = this.doc._id
-                newDoc.tags = this.currentTags
-                newDoc.title = this.title
-            } else {
-                newDoc = {
-                    "title": this.title,
-                    "type": this.type,
-                    "owner": this.store.user,
-                    "tags": this.currentTags,
-                    "content": {
-                        "text": "",
-                        "notes": "",
-                        "mindmap": {
-                            "elements": []
-                        }
+            this.removeExtraTags()
+            newDoc = {
+                "title": this.title,
+                "type": this.type,
+                "owner": this.store.user,
+                "tags": this.currentTags,
+                "content": {
+                    "text": "",
+                    "notes": "",
+                    "mindmap": {
+                        "elements": []
                     }
                 }
             }
+
             try {
                 const response = await fetch('http://localhost:4000/api/docs/' + id, {
                     method: method,
@@ -176,8 +188,8 @@ export default {
         },
 
         async updateDoc() {
-            console.log(this.doc)
             this.isLoading = true;
+            this.removeExtraTags()
             let b = {
                 title: this.title,
                 tags: this.currentTags

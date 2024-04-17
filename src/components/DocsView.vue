@@ -8,7 +8,7 @@
     <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')" class="b-bar" />
     <v-container class="bg-deep-purple-lighten-5 mb-5 doc-container">
       <v-row>
-        <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="2" md="2" lg="2">
+        <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="1" md="1" lg="2">
           <v-card @click="goToDocument(card._id, card.type)" class="rounded-lg doc-card">
             <header class="card-header">
               <div style="width:85%">
@@ -130,7 +130,7 @@ export default {
       if (typeof msg == 'string') {
         this.msgShow = true;
         this.msgContent = msg
-        this.msgColor =color
+        this.msgColor = color
       }
 
     },
@@ -221,11 +221,15 @@ p {
 }
 
 .doc-container {
-  width: 1400px;
-  margin-right: 10rem;
+  flex: 1;
+  width: 70vw;
+  margin-left: 20vw;
+  max-width: 80rem;
+  /* Set a maximum width */
+  margin-top: 2rem;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 10px;
-  margin-top: 2rem;
+
 }
 
 .content {
