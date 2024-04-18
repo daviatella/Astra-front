@@ -12,11 +12,16 @@ import { createPinia } from 'pinia'
 import router from './routes.js'
 import PrimeVue from 'primevue/config';
 import App from './App.vue'
-
-// Composables
 import { createApp } from 'vue'
+// Composables
+
 
 const app = createApp(App)
+
+app.config.productionTip = false;
+
+// Suppress Vue runtime warning about devtools
+app.config.devtools = false;
 const pinia = createPinia()
 app.use(Buefy);
 app.use(pinia)
