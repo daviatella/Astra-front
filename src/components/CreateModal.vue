@@ -50,7 +50,6 @@
                 <v-spacer></v-spacer>
             </v-card-actions>
         </div>
-        <!--  -->
     </v-card>
     <v-card v-if="this.type == 'delete'" class="small-modal rounded-lg">
         <div class="text bg-banner bg-red-lighten-1">
@@ -79,7 +78,7 @@
 
 <script>
 import { useDocsStore } from '@/store.js'
-import TagModal from './TagModal.vue';
+import TagModal from './Tags/TagModal.vue';
 
 export default {
     props: [

@@ -11,9 +11,6 @@ import 'buefy/dist/buefy.css';
 import { createPinia } from 'pinia'
 import router from './routes.js'
 import PrimeVue from 'primevue/config';
-
-
-// Components
 import App from './App.vue'
 
 // Composables

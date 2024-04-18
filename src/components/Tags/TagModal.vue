@@ -4,17 +4,15 @@
     </v-overlay>
     <v-card class="modal rounded-lg">
         <div class="text bg-banner bg-green-lighten-2">
-            <v-card-title>Create Tag</v-card-title>
+            <v-card-title>{{ this.updateInfo ? 'Update' : 'Create' }} Tag</v-card-title>
         </div>
         <v-card-text class="w-100">
             <div style="display: flex; align-items: center;">
                 <v-select v-if="!newCategory" label="Category" v-model="chosenCategory"
                     @update:modelValue="updateDefaults" class="m-auto cat-box" :items="categories"
                     variant="outlined"></v-select>
-                <v-text-field v-if="newCategory"
-                    :rules="[rules.required, rules.unique]"
-                    label="New Category Name" v-model="chosenCategory" class="m-auto cat-box"
-                    variant="outlined"></v-text-field>
+                <v-text-field v-if="newCategory" :rules="[rules.required, rules.unique]" label="New Category Name"
+                    v-model="chosenCategory" class="m-auto cat-box" variant="outlined"></v-text-field>
                 <v-tooltip location="top" :text="newCategory ? 'Cancel' : 'New Category'">
                     <template v-slot:activator="{ props }">
                         <v-btn :icon="newCategory ? 'mdi-close' : 'mdi-plus'" v-bind="props" variant="solo"
@@ -23,7 +21,8 @@
                 </v-tooltip>
             </div>
             <div style="display: flex; align-items: center;">
-                <v-text-field label="Tag Name" :rules="[rules.required]" v-model="tagName" class="m-auto" variant="outlined"></v-text-field>
+                <v-text-field label="Tag Name" :rules="[rules.required, rules.uniqueTag]" v-model="tagName"
+                    class="m-auto" variant="outlined"></v-text-field>
                 <v-menu v-model="menu" class="w-100 color-menu container" :close-on-content-click="false">
                     <template v-slot:activator="{ on }">
                         <div @click="menu = true" class="ml-4 mb-4 mr-4" style="border: solid grey 1px"
@@ -35,7 +34,7 @@
                         </v-card-text>
                     </v-card>
                 </v-menu>
-                <v-autocomplete v-model="currentIcon"  variant="outlined" :items="icons" color="blue-grey-lighten-2"
+                <v-autocomplete v-model="currentIcon" variant="outlined" :items="icons" color="blue-grey-lighten-2"
                     item-title="name" item-value="raw" label="Tag Icon">
 
                     <template v-slot:prepend-inner>
@@ -65,7 +64,13 @@
         <div class="text bg-banner bg-green-lighten-2 mt-3">
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="createTag" variant="outlined">Create</v-btn>
+                <v-btn @click="this.updateInfo ? createOrUpdateTag(true) : createOrUpdateTag(false)"
+                    variant="outlined">{{
+                        this.updateInfo ?
+                            'Update'
+                            :
+                            'Create'
+                    }}</v-btn>
                 <v-btn @click="closeModal(false)" variant="outlined">Cancel</v-btn>
                 <v-spacer></v-spacer>
             </v-card-actions>
@@ -77,9 +82,11 @@
 <script>
 import { useDocsStore } from '@/store.js'
 import meta from '@mdi/svg/meta.json'
+import { updateUser, updateDocumentsWithTag } from './tags.api';
+import { update } from 'lodash';
 
 export default {
-    props: [
+    props: ['updateInfo'
     ],
     data() {
         return {
@@ -94,6 +101,7 @@ export default {
             tagName: '',
             rules: {
                 required: value => !!value || 'Required.',
+                uniqueTag: value => this.isTagUnique(value) || 'Tag name already exists in this category.',
                 unique: value => !this.categories.includes(value) || 'Category already exists',
             },
         }
@@ -122,18 +130,31 @@ export default {
         for (let icon of meta) {
             this.icons.push(icon.name)
             i++;
-
+        }
+        if (this.updateInfo) {
+            this.tagName = this.updateInfo.tag.name
+            this.color = this.updateInfo.tag.color
+            this.currentIcon = this.updateInfo.tag.icon
+            this.chosenCategory = this.updateInfo.cat
         }
     },
     methods: {
-        async createTag() {
-            this.isLoading=true;
-            console.log(this.chosenCategory, this.currentIcon, this.tagName, this.color)
-            let newTag = {
+        isTagUnique(tagName) {
+            const category = this.store.userInfo.tags.find(cat => cat.title === this.chosenCategory);
+            if (category) {
+                return !category.items.some(tag => tag.name === tagName);
+            }
+            return true;
+        },
+        async createOrUpdateTag(isUpdate) {
+            this.isLoading = true;
+            let tagData = {
                 name: this.tagName,
                 color: this.color,
-                icon: this.currentIcon
-            }
+                icon: this.currentIcon,
+                title: this.chosenCategory
+            };
+
             if (this.newCategory) {
                 let newCat = {
                     title: this.chosenCategory,
@@ -142,33 +163,45 @@ export default {
                         icon: this.icon
                     },
                     items: []
-                }
-                this.store.userInfo.tags.push(newCat)
+                };
+                this.store.userInfo.tags.push(newCat);
             }
-            let i = this.store.userInfo.tags.findIndex(cat => cat.title === this.chosenCategory)
-            this.store.userInfo.tags[i].items.push(newTag)
-            console.log(this.store.userInfo.tags)
-            let b = {
+            if (isUpdate) {
+                let categoryIndex = this.updateInfo.catIndex;
+                let tagIndex = this.updateInfo.tagIndex;
+
+                if (categoryIndex !== -1 && tagIndex !== -1) {
+                    if (this.updateInfo.tag && this.updateInfo.cat !== this.chosenCategory) {
+                        let newCategoryIndex = this.store.userInfo.tags.findIndex(cat => cat.title === this.chosenCategory);
+                        this.store.userInfo.tags[categoryIndex].items.splice(tagIndex, 1);
+                        this.store.userInfo.tags[newCategoryIndex].items.push(tagData);
+                    } else {
+                        this.store.userInfo.tags[categoryIndex].items[tagIndex] = tagData;
+                    }
+                } else {
+                    this.isLoading = false;
+                    return;
+                }
+
+            } else {
+                let categoryIndex = this.store.userInfo.tags.findIndex(cat => cat.title === this.chosenCategory);
+                this.store.userInfo.tags[categoryIndex].items.push(tagData);
+            }
+
+            let requestBody = {
                 tags: this.store.userInfo.tags
-            }
+            };
             try {
-                const response = await fetch('http://localhost:4000/api/users/' + this.store.userInfo._id, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(b)
-                });
-                if (!response.ok) {
-                    console.log(response)
-                    throw new Error(response);
+                await updateUser(requestBody, this.store.userInfo._id)
+                if(isUpdate){
+                    await updateDocumentsWithTag(this.updateInfo.tag, tagData, this.store.user)
                 }
-                const responseData = await response.json();
-                console.log(responseData)
-            } catch (error) {
-                console.error('Error fetching data:', error);
+                this.isLoading=false;
+            } catch (err) {
+                console.log(err)
             }
-            this.closeModal(true)
+
+            this.closeModal(true);
         },
         closeModal(tagCreated) {
             this.$emit("closeModal", tagCreated)
@@ -181,7 +214,7 @@ export default {
         },
         toggleNewCategory() {
             this.newCategory = !this.newCategory
-            this.chosenCategory=''
+            this.chosenCategory = ''
         }
 
     }
