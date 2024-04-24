@@ -2,45 +2,34 @@
   <v-overlay :model-value="isLoading" class="align-center justify-center">
     <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
   </v-overlay>
-  <TopBar @update-search="updateSearchQuery" :search="true" />
+  <TopBar @update-search="updateSearchQuery" @expand-tag="expandTags" :search="true" />
   <div v-if="!isLoading">
     <HomeSidebar></HomeSidebar>
-    <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')" class="b-bar" />
+    <div class="mb-5"></div>
+    <v-expand-transition>
+      <v-autocomplete v-if="expand" class="w-25 m-auto mr-16" v-model="currentTagNames" variant="outlined" :items="tags"
+        color="blue-grey-lighten-2" item-title="name" item-value="raw" label="Tags" chips closable-chips multiple>
+
+        <template v-slot:chip="{ props, item }">
+          <v-chip v-bind="props" :color="item.raw.color" variant="flat"><v-icon v-if="item.raw.icon"
+              :icon="'mdi-' + item.raw.icon"></v-icon>{{
+                item.raw.name }}</v-chip>
+        </template>
+
+        <template v-slot:item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw.name" :subtitle="item.raw.title">
+            <template v-slot:prepend>
+              <v-icon :icon="'mdi-' + item.raw.icon"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+    </v-expand-transition>
+    <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')" class="m-auto" />
     <v-container class="bg-deep-purple-lighten-5 mb-5 doc-container">
       <v-row>
         <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="1" md="1" lg="2">
-          <v-card @click="goToDocument(card._id, card.type)" class="rounded-lg doc-card">
-            <header class="card-header">
-              <div style="width:85%">
-                <p class="card-header-title text-truncate">
-                  {{ card.title }}
-                </p>
-              </div>
-              <v-menu>
-
-                <template v-slot:activator="{ props }">
-                  <v-btn icon="mdi-dots-vertical" size="small" class="ml-3" variant="plain" v-bind="props" />
-                </template>
-                <v-list>
-                  <v-list-item @click="openModal('update', card)">
-                    <v-list-item-title>Update Nexus</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="openModal('', card)">
-                    <v-list-item-title>Create a Copy</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="openModal('delete', card)">
-                    <v-list-item-title>Delete Nexus</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </header>
-            <div class="content">
-              <v-img :src="getImagePath(card.type)" class="content-image"></v-img>
-            </div>
-            <footer class="card-footer">
-              <p class="card-footer-item">{{ getWordCount(card.content, card.type) }}</p>
-            </footer>
-          </v-card>
+          <NexusCard :card="card" :travel="true" @open-modal="openModal" />
         </v-col>
       </v-row>
     </v-container>
@@ -58,6 +47,7 @@ import CreateButtons from './CreateButtons.vue';
 import CreateModal from './CreateModal.vue'
 import HomeSidebar from './HomeSidebar.vue';
 import { useDocsStore } from '@/store.js'
+import NexusCard from './NexusCard.vue';
 
 export default {
   async mounted() {
@@ -88,6 +78,15 @@ export default {
       this.isLoading = false;
     }
     await this.getUserInfo("daviatella", "123")
+    let tagsInfo = this.store.userInfo.tags
+    this.tags = []
+
+    for (let c of tagsInfo) {
+      for (let t of c.items) {
+        t.title = c.title;
+      }
+      this.tags.push(...c.items)
+    }
   },
   data: () => ({
     doc: '',
@@ -96,7 +95,9 @@ export default {
     type: '',
     searchQuery: '',
     msgShow: false,
-    msgColor: ''
+    msgColor: '',
+    expand: false,
+    currentTagNames: []
   }),
   computed: {
     userDocs() {
@@ -104,26 +105,32 @@ export default {
     },
     filteredDocs() {
       const query = this.searchQuery.toLowerCase();
-      return this.userDocs.filter(doc =>
+      let newDocs = this.userDocs.filter(doc =>
         doc.title.toLowerCase().includes(query) ||
         doc.content.text.toLowerCase().includes(query)
       );
+      if (!this.currentTagNames || this.currentTagNames.length === 0) {
+        return newDocs;
+      } else {
+        return newDocs.filter(doc => {
+          if (!doc.tags) {
+            return false;
+          }
+          return this.currentTagNames.every(tagName => {
+            return doc.tags.some(tag => tag.name === tagName);
+          });
+        });
+      }
     }
   },
   emits: ['goDocs'],
   methods: {
-    goToDocument(id, type) {
-      if (type == 'doc') {
-        this.$router.push('/document/' + id)
-      } else {
-        this.$router.push('/board/' + id)
-      }
+    expandTags(){
+      this.expand = !this.expand
+      console.log(this.expand)
     },
     async updateSearchQuery(query) {
       this.searchQuery = query;
-    },
-    getImagePath(type) {
-      return new URL(`../assets/${type}-icon.png`, import.meta.url).href
     },
     closeModal(msg, color) {
       this.dialog = false;
@@ -138,24 +145,6 @@ export default {
       this.dialog = true;
       this.type = type
       this.doc = doc;
-    },
-    getWordCount(content, type) {
-      if (type == 'doc') {
-        if (content.text) {
-          let num = content.text.trim().split(/\s+/).length
-          return num + (num > 1 ? ' words' : ' word');
-        } else {
-          return '0 words'
-        }
-      } else {
-        if (content.mindmap.elements) {
-          let num = content.mindmap.elements.filter(el => el.dimensions).length
-          return num + (num > 1 ? ' nodes' : ' node');
-        } else {
-          return '0 node'
-        }
-      }
-
     },
     async getUserInfo(email, pw) {
       let b = {

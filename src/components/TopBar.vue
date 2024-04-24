@@ -4,16 +4,23 @@
       <img src="../assets/logo.png" />
     </v-btn>
     <v-spacer />
-    <v-text-field v-model="searchQuery" :loading="loading" class="search-box" append-inner-icon="mdi-magnify"
-      density="compact" placeholder="Search" v-if="search==true" :clearable="true" variant="solo" @input="updateSearch"></v-text-field>
+    <v-text-field v-model="searchQuery" :loading="loading" class="search-box ml-16" append-inner-icon="mdi-magnify"
+      density="compact" placeholder="Search" v-if="search == true" :clearable="true" variant="solo"
+      @input="updateSearch"></v-text-field>
+    <v-btn @click="expandTagSearch" v-if="search == true" class="ml-3 mt-1 rounded-circle" icon>
+      <v-icon @click="expandTagSearch" icon="mdi-tag-multiple" color='black' />
+    </v-btn>
     <v-spacer />
-    <v-btn @click="goToMainPage" class="mr-5 rounded-circle" icon>
+    <v-btn class="mr-5 rounded-circle" icon>
       <img class="rounded-circle" src="https://randomuser.me/api/portraits/women/81.jpg" />
     </v-btn>
   </v-app-bar>
+
+
 </template>
 
 <script>
+
 export default {
   props: ['search'],
   data() {
@@ -22,12 +29,16 @@ export default {
       loading: false,
     };
   },
+
   methods: {
     goToMainPage() {
       this.$router.push('/');
     },
     updateSearch() {
       this.$emit('update-search', this.searchQuery);
+    },
+    expandTagSearch() {
+      this.$emit('expand-tag');
     },
   },
 };

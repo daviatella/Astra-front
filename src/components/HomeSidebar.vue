@@ -6,7 +6,7 @@
           <div v-html="'Documents'"></div>
         </template>
       </v-list-item>
-      <v-list-item prepend-icon="mdi-folder-multiple" title="Projects" value="account">
+      <v-list-item prepend-icon="mdi-folder-multiple" to="/projects/" title="Projects" value="account">
         <template v-slot:title="{}">
           <div class="sidebar" v-html="'Projects'"></div>
         </template>

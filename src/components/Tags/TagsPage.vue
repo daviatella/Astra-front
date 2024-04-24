@@ -15,7 +15,7 @@
         <v-chip v-for="(tag, index) in cat.items" :text="tag.name" :color="tag.color"
           @click="toggleTagModal(tag, index, cat, catIndex)" :ref="index" class="mr-2" variant="flat"
           @mouseenter="toggleClosable(catIndex, index, true)" @mouseleave="toggleClosable(catIndex, index, false)">
-          <v-icon v-if="tag.icon" :icon="'mdi-' + tag.icon"></v-icon>
+          <v-icon v-if="tag.icon" class="mr-1" :icon="'mdi-' + tag.icon"></v-icon>
           {{ tag.name }}
           <template v-slot:close>
             <v-icon v-if="closable[catIndex][index]" @click.capture.stop="deleteDialog(catIndex, index)"></v-icon>
