@@ -55,10 +55,10 @@
 </template>
 
 <script>
-import TopBar from '../TopBar.vue';
+import TopBar from '../shared/TopBar.vue';
 import TagModal from './TagModal.vue';
-import HomeSidebar from '../HomeSidebar.vue';
-import CreateButtons from '../CreateButtons.vue';
+import HomeSidebar from '../shared/HomeSidebar.vue';
+import CreateButtons from '../shared/CreateButtons.vue';
 import { useDocsStore } from '@/store';
 import { updateUser, deleteCategory } from './tags.api';
 

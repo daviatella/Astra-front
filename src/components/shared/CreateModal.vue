@@ -78,7 +78,8 @@
 
 <script>
 import { useDocsStore } from '@/store.js'
-import TagModal from './Tags/TagModal.vue';
+import TagModal from '../Tags/TagModal.vue';
+import { createDocument, updateDocument, deleteDocument } from './docs.api';
 
 export default {
     props: [
@@ -144,113 +145,64 @@ export default {
         },
         async createDoc() {
             this.isLoading = true;
-            let method = "POST"
-            let newDoc = {}
-            let id = ''
             this.removeExtraTags()
-            newDoc = {
-                "title": this.title,
-                "type": this.type,
-                "owner": this.store.user,
-                "tags": this.currentTags,
-                "content": {
-                    "text": "",
-                    "notes": "",
-                    "mindmap": {
-                        "elements": []
-                    }
-                }
-            }
-
             try {
-                const response = await fetch('http://localhost:4000/api/docs/' + id, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(newDoc)
-                })
-                if (!response.ok) {
-                    console.log(response)
-                    throw new Error(response);
-                } else {
-                    const responseData = await response.json();
-                    newDoc._id = responseData.data.id;
-                    newDoc._rev = responseData.data.rev;
-                    this.store.userDocs.push(newDoc)
-                    this.$router.push("/" + (this.type == 'doc' ? 'document' : 'board') + '/' + responseData.data.id)
-                }
-
+                let newDoc = {
+                    title: this.title,
+                    type: this.type,
+                    owner: this.store.user,
+                    tags: this.currentTags,
+                    content: {
+                        text: '',
+                        notes: '',
+                        mindmap: {
+                            elements: []
+                        }
+                    }
+                };
+                const responseData = await createDocument(newDoc);
+                newDoc._id = responseData.id;
+                newDoc._rev = responseData.rev;
+                this.store.userDocs.push(newDoc);
+                this.$router.push(`/${this.type == 'doc' ? 'document' : 'board'}/${responseData.id}`);
             } catch (error) {
-                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
+                this.closeModal('Something went wrong. Please wait a second and try again.', 'Red');
+            } finally {
+                this.isLoading = false;
             }
         },
 
         async updateDoc() {
             this.isLoading = true;
-            this.removeExtraTags()
-            let b = {
-                title: this.title,
-                tags: this.currentTags
-            }
             try {
-                const response = await fetch('http://localhost:4000/api/docs/' + this.doc._id, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(b)
-                })
-                if (!response.ok) {
-                    console.log(response)
-                    throw new Error(response);
-                } else {
-                    const responseData = await response.json();
-                    console.log(responseData)
-
-                    let selectedDoc = this.store.userDocs.filter(doc => doc._id == responseData.data.id)[0]
-                    selectedDoc.title = this.title
-                    selectedDoc.tags = this.currentTags
-                    selectedDoc._rev = responseData.data.rev
-                    this.isLoading = false;
-                    this.closeModal("Document Updated Successfully", "green")
-                }
+                let data = {
+                    title: this.title,
+                    tags: this.currentTags
+                };
+                const responseData = await updateDocument(this.doc._id, data);
+                let selectedDoc = this.store.userDocs.find(doc => doc._id == responseData.id);
+                selectedDoc.title = this.title;
+                selectedDoc.tags = this.currentTags;
+                selectedDoc._rev = responseData.rev;
+                this.closeModal('Document Updated Successfully', 'green');
             } catch (error) {
-                console.error('Error fetching data:', error);
-                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
+                console.error('Error updating document:', error);
+                this.closeModal('Something went wrong. Please wait a second and try again.', 'Red');
+            } finally {
+                this.isLoading = false;
             }
         },
-
         async deleteDoc() {
-            console.log(this.doc)
             this.isLoading = true;
-            let queryParams = {
-                rev: this.doc._rev
-            }
-            const queryString = new URLSearchParams(queryParams).toString();
             try {
-                const response = await fetch('http://localhost:4000/api/docs/' + this.doc._id + '?' + queryString, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                })
-                if (!response.ok) {
-                    console.log(response)
-                    throw new Error(response);
-                } else {
-                    const responseData = await response.json();
-                    console.log(responseData)
-                    console.log("first - " + this.store.userDocs.length)
-                    this.store.userDocs = this.store.userDocs.filter(doc => doc._id !== this.doc._id)
-                    console.log("second - " + this.store.userDocs.length)
-
-                    this.isLoading = false;
-                    this.closeModal("Document Deleted Successfully", "green")
-                }
+                const responseData = await deleteDocument(this.doc._id, this.doc._rev);
+                this.store.userDocs = this.store.userDocs.filter(doc => doc._id !== this.doc._id);
+                this.closeModal('Document Deleted Successfully', 'green');
             } catch (error) {
-                console.error('Error fetching data:', error);
-                this.closeModal("Something went wrong. Please wait a second and try again.", "Red")
+                console.error('Error deleting document:', error);
+                this.closeModal('Something went wrong. Please wait a second and try again.', 'Red');
+            } finally {
+                this.isLoading = false;
             }
         },
 

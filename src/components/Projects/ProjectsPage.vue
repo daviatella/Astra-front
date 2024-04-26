@@ -13,10 +13,9 @@
 </template>
 
 <script>
-import TopBar from '../TopBar.vue';
-import HomeSidebar from '../HomeSidebar.vue';
+import TopBar from '../shared/TopBar.vue';
+import HomeSidebar from '../shared/HomeSidebar.vue';
 import ProjectModal from './ProjectModal.vue'
-import CreateButtons from '../CreateButtons.vue';
 import { useDocsStore } from '@/store';
 
 export default {

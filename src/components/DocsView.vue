@@ -43,11 +43,11 @@
 </template>
 
 <script>
-import CreateButtons from './CreateButtons.vue';
-import CreateModal from './CreateModal.vue'
-import HomeSidebar from './HomeSidebar.vue';
+import CreateButtons from './shared/CreateButtons.vue';
+import CreateModal from './shared/CreateModal.vue'
+import HomeSidebar from './shared/HomeSidebar.vue';
 import { useDocsStore } from '@/store.js'
-import NexusCard from './NexusCard.vue';
+import NexusCard from './shared/NexusCard.vue';
 
 export default {
   async mounted() {

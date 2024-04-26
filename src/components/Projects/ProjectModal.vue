@@ -7,7 +7,7 @@
             <v-card-title>{{ this.project ? "Update" : "Create" }} Project</v-card-title>
         </div>
         <v-card-text class="w-100">
-            <v-text-field :rules="[rules.required]" label="Project Name" v-model="projectName" class="m-auto"
+            <v-text-field :rules="[rules.required]" label="Project Name" v-model="title" class="m-auto"
                 variant="outlined"></v-text-field>
             <div style="display: flex; align-items: center;">
                 <v-card-subtitle class="text-h5">Boards</v-card-subtitle>
@@ -38,7 +38,7 @@
                     style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
                     <template v-slot:item="{ item }">
                         <drag :key="item._id" :data="item">
-                            <NexusCard :card="item" style="z-index: 99999;" class='w-75' :travel="false" />
+                            <NexusCard :card="item" class='w-75' :travel="false" />
                         </drag>
                     </template>
                     <template v-slot:reordering-drag-image>
@@ -73,7 +73,7 @@
         <div class="text bg-banner bg-black">
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn variant="outlined">{{ this.project ? "Update" :
+                <v-btn variant="outlined" @click="createProject">{{ this.project ? "Update" :
                     "Create"
                     }}</v-btn>
                 <v-btn variant="outlined" @click="closeModal">Cancel</v-btn>
@@ -141,7 +141,6 @@ export default {
             chosenNexus: [],
             currentTagNames: [],
             isLoading: false,
-            projectName: '',
             currentTags: [],
             loader: 0,
             rules: {
@@ -205,6 +204,18 @@ export default {
                 this.currentTags = this.currentTags.filter(el => this.currentTagNames.includes(el.name))
             }
         },
+        async createProject() {
+            let newProj = {
+                title: this.title,
+                type: 'project',
+                owner: this.store.user,
+                boards: this.chosenBoards,
+                nexus: this.chosenNexus,
+                tags: this.currentTags
+            }
+            console.log(newProj)
+        },
+
 
 
         closeModal(msg, color) {
