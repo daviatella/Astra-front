@@ -1,21 +1,16 @@
 <template>
-  <v-card @click="travel?goToDocument(card._id, card.type):''" class="rounded-lg doc-card">
-    <header class="card-header">
-      <div style="width:85%">
-        <p class="card-header-title text-truncate">
-          {{ card.title }}
-        </p>
+  <v-card @click="travel?goToDocument(card._id, card.type):''" class="rounded-lg doc-card" :class="{'selected': selected}">
+    <header class="card-header ch-title text-truncate">
+      <div style="width:75%" class="m-auto">
+         <p class="text-truncate ml-n2">{{ card.title }}</p> 
       </div>
-      <v-menu>
+      <v-menu v-if="travel">
         <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-dots-vertical" size="small" class="ml-3" variant="plain" v-bind="props" />
+          <v-btn icon="mdi-dots-vertical" style="margin-top: -2px;margin-right: -2px;" size="small"  :flat="true" variant="plain" v-bind="props" />
         </template>
         <v-list>
           <v-list-item @click="openModal('update', card)">
             <v-list-item-title>Update Nexus</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="openModal('', card)">
-            <v-list-item-title>Create a Copy</v-list-item-title>
           </v-list-item>
           <v-list-item @click="openModal('delete', card)">
             <v-list-item-title>Delete Nexus</v-list-item-title>
@@ -36,7 +31,8 @@
 export default {
   props: {
     card: Object,
-    travel: Boolean
+    travel: Boolean,
+    selected: Boolean
   },
   methods: {
     goToDocument(id, type) {
@@ -82,6 +78,17 @@ export default {
   margin: 0 auto;
 }
 
+.ch-title {
+  font-weight: bold;
+  height: 40px;
+  align-items: center;
+}
+
+.selected {
+  color: white;
+  background-color: gray;
+}
+
 .content {
   height: 5rem;
   display: flex;
@@ -98,6 +105,7 @@ p {
 
 .card-header .v-btn {
   position: absolute;
+  justify-content: center;
   top: 0.2rem;
   right: 0.01rem;
 }

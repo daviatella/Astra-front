@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import DocsView from './components/DocsView.vue'
 import Nexus from './components/Document/Nexus.vue'
@@ -11,13 +11,13 @@ const routes = [
   { path: '/document/:id', component: Nexus, props: true},
   { path: '/board/:id', component: Flow, props: true},
   { path: '/tags/', component: Tags, props: true},
-  { path: '/projects/', component: Projects, props: true}
+  { path: '/projects/', component: ProjectsPage, props: true}
 
 
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 })
 
