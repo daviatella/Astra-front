@@ -95,7 +95,7 @@
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn variant="outlined" class="text" @click="closeModal">Cancel</v-btn>
-                <v-btn variant="outlined" class="text" @click="">Delete</v-btn>
+                <v-btn variant="outlined" class="text" @click="closeModal">Delete</v-btn>
                 <v-spacer></v-spacer>
             </v-card-actions>
         </div>
@@ -109,6 +109,8 @@
 import { useDocsStore } from '@/store.js'
 import DocsModal from './DocsModal.vue';
 import { Drag, Drop, DropList } from "vue-easy-dnd";
+import { createDocument, updateDocument, deleteDocument } from '../shared/docs.api';
+
 
 export default {
     props: [
@@ -205,15 +207,28 @@ export default {
             }
         },
         async createProject() {
+            this.isLoading = true;
             let newProj = {
                 title: this.title,
                 type: 'project',
                 owner: this.store.user,
-                boards: this.chosenBoards,
-                nexus: this.chosenNexus,
+                boards: this.chosenBoards.map(el => el._id),
+                nexus: this.chosenNexus.map(el => el._id),
                 tags: this.currentTags
             }
             console.log(newProj)
+            try {
+                const responseData = await createDocument(newProj);
+                newProj._id = responseData.id;
+                newProj._rev = responseData.rev;
+                this.store.userProjs.push(newProj)
+                
+            } catch(err){
+                console.log(err)
+            } finally {
+                this.isLoading = false;
+                this.closeDocModal()
+            }
         },
 
 

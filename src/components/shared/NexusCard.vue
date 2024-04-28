@@ -1,12 +1,14 @@
 <template>
-  <v-card @click="travel?goToDocument(card._id, card.type):''" class="rounded-lg doc-card" :class="{'selected': selected}">
+  <v-card @click="travel ? goToDocument(card._id, card.type) : ''" class="rounded-lg doc-card"
+    :class="{ 'selected': selected }">
     <header class="card-header ch-title text-truncate">
       <div style="width:75%" class="m-auto">
-         <p class="text-truncate ml-n2">{{ card.title }}</p> 
+        <p class="text-truncate ml-n2">{{ card.title }}</p>
       </div>
       <v-menu v-if="travel">
         <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-dots-vertical" style="margin-top: -2px;margin-right: -2px;" size="small"  :flat="true" variant="plain" v-bind="props" />
+          <v-btn icon="mdi-dots-vertical" style="margin-top: -2px;margin-right: -2px;" size="small" :flat="true"
+            variant="plain" v-bind="props" />
         </template>
         <v-list>
           <v-list-item @click="openModal('update', card)">
@@ -46,7 +48,8 @@ export default {
       this.$emit('open-modal', type, card);
     },
     getImagePath(type) {
-      return new URL(`../assets/${type}-icon.png`, import.meta.url).href;
+      const baseUrl = new URL('../../', import.meta.url).href;
+      return new URL(`src/assets/${type}-icon.png`, baseUrl).href;
     },
     getWordCount(content, type) {
       if (type === 'doc') {
@@ -69,7 +72,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .content-image {
   width: 100%;
   max-width: 100%;
@@ -95,7 +98,7 @@ export default {
   justify-content: center;
   align-items: center;
   margin-top: 1.5rem;
-} 
+}
 
 p {
   font-family: Space Grotesk, sans-serif;

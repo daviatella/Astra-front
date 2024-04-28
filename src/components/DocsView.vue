@@ -1,9 +1,6 @@
 <template>
-  <v-overlay :model-value="isLoading" class="align-center justify-center">
-    <v-progress-circular color="purple" size="64" indeterminate></v-progress-circular>
-  </v-overlay>
   <TopBar @update-search="updateSearchQuery" @expand-tag="expandTags" :search="true" />
-  <div v-if="!isLoading">
+  <div>
     <HomeSidebar></HomeSidebar>
     <div class="mb-5"></div>
     <v-expand-transition>
@@ -51,33 +48,8 @@ import NexusCard from './shared/NexusCard.vue';
 
 export default {
   async mounted() {
-    this.store = useDocsStore()
     this.store.selectedDoc = '';
-    let b = {
-      user: this.store.user
-    }
-    if (!this.store.userDocs) {
-      try {
-        const response = await fetch('http://localhost:4000/api/docs-by-owner', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(b)
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const responseData = await response.json();
-        this.store.$state = { userDocs: responseData.data }
-        this.isLoading = false;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    } else {
-      this.isLoading = false;
-    }
-    await this.getUserInfo("daviatella", "123")
+
     let tagsInfo = this.store.userInfo.tags
     this.tags = []
 
@@ -90,13 +62,13 @@ export default {
   },
   data: () => ({
     doc: '',
-    isLoading: true,
     dialog: false,
     type: '',
     searchQuery: '',
     msgShow: false,
     msgColor: '',
     expand: false,
+    store: useDocsStore(),
     currentTagNames: []
   }),
   computed: {
@@ -127,7 +99,6 @@ export default {
   methods: {
     expandTags(){
       this.expand = !this.expand
-      console.log(this.expand)
     },
     async updateSearchQuery(query) {
       this.searchQuery = query;
@@ -146,33 +117,7 @@ export default {
       this.type = type
       this.doc = doc;
     },
-    async getUserInfo(email, pw) {
-      let b = {
-        email: email,
-        password: pw
-      }
-      if (!this.store.userInfo) {
-        try {
-          const response = await fetch('http://localhost:4000/api/users/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(b)
-          });
-          if (!response.ok) {
-            throw new Error('Failed to fetch data');
-          }
-          const responseData = await response.json();
-          this.store.userInfo = responseData.data
-          this.isLoading = false;
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      } else {
-        this.isLoading = false;
-      }
-    }
+    
   }
 };
 </script>

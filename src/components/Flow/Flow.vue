@@ -2,7 +2,7 @@
 import { ref, onMounted, toRaw, onBeforeUnmount } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { useDocsStore } from '@/store.js'
-import TopBar from '../TopBar.vue';
+import TopBar from '../shared/TopBar.vue';
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'

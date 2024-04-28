@@ -39,7 +39,7 @@
 import TextPanel from './TextPanel.vue'
 import NotesPanel from './NotesPanel.vue';
 import Flow from '../Flow/Flow.vue';
-import TopBar from '../TopBar.vue';
+import TopBar from '../shared/TopBar.vue';
 import { useDocsStore } from '@/store.js'
 
 

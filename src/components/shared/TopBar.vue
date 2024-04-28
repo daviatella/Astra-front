@@ -1,7 +1,7 @@
 <template>
   <v-app-bar :elevation="1" density="comfortable" :color="'deep-purple-lighten-5'">
     <v-btn @click="goToMainPage" class="ml-4" icon>
-      <img src="../assets/logo.png" />
+      <img src="@/assets/logo.png" />
     </v-btn>
     <v-spacer />
     <v-text-field v-model="searchQuery" :loading="loading" class="search-box ml-16" append-inner-icon="mdi-magnify"
