@@ -10,7 +10,7 @@
   <v-container class="bg-purple-lighten-5 doc-container">
     <v-row>
       <v-col v-for="(card, index) in store.userProjs" :key="index" cols="20" sm="1" md="1" lg="2">
-        <v-card @click="" class="rounded-lg doc-card">
+        <v-card :to="'/projects/'+card._id" class="rounded-lg doc-card">
           <header class="card-header ch-title text-truncate">
             <div style="width:75%" class="m-auto">
               <p class="text-truncate ml-n2">{{ card.title }}</p>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, toRaw, onBeforeUnmount } from 'vue'
+import { ref} from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { useDocsStore } from '@/store.js'
 import TopBar from '../shared/TopBar.vue';
@@ -7,6 +7,8 @@ import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
 import ToolbarNode from './CustomNode.vue'
+import DocumentNode from './DocumentNode.vue';
+import NexusCard from '../shared/NexusCard.vue';
 
 
 const props = defineProps(['id'])
@@ -33,13 +35,20 @@ function logNodes() {
   console.log(JSON.stringify(toObject()))
 }
 
+
+function getNewNodeId() {
+ return "dndnode_"+toObject().nodes.length
+}
+ 
+
+
 const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
 </script>
 
 
 <template>
   <TopBar v-if="props.id"></TopBar>
-  <div class="dndflow" @drop="onDrop">
+  <div class="dndflow" @drop="onDrop($event, getNewNodeId())">
     <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @dragover="onDragOver" @dragleave="onDragLeave"
       @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
       <DropzoneBackground :style="{
@@ -47,8 +56,13 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
         transition: 'background-color 0.2s ease',
       }" />
       <template #node-toolbar="nodeProps">
-        <ToolbarNode :data="nodeProps.data" :resizer="resizer" :label="'test'" :act1="logNodes" />
+        <ToolbarNode :data="nodeProps.data" :resizer="resizer" :label="'test'" :act1="logNodes" :act2="getNodeCount" />
       </template>
+
+      <template #node-document="nodeProps">
+        <NexusCard class="nodedoc" :node="true" :card="store.selectedDoc" />
+      </template>
+      
     </VueFlow>
 
     <Sidebar :isFlow="props.id" />
@@ -71,6 +85,9 @@ body,
   height: 100%;
 }
 
+.nodedoc {
+  width: 11rem;
+}
 
 
 #app {

@@ -1,105 +1,40 @@
 <template>
-  <IndentationRuler class="ruler" @applyIndentation="applyIndentation" />
-  <div class="page" ref="page">
-    <div style="height: 30px"></div>
-    <div class="page-2">
-    <v-textarea class="text-area" ref="textarea" flat scrollable variant="solo" auto-grow  no-resize v-model="store.selectedDoc.content.text"  @input="handleInput"></v-textarea>
-  </div>
-  </div>
+  <v-btn @click="console.log(test)"></v-btn>
+  <main id="sample">
+    <Editor api-key="kxr688xmjga0t7u2u07qqugnnv9qpce8nhhc2lhwnkf81sq6" :init="{
+      toolbar_mode: 'sliding',
+      min_height: 900,
+      plugins: 'anchor autoresize autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker',
+      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat'
+    }"  :initial-value="props.content.content.text" @selection-change="testF">
+    </Editor>
+    />
+  </main>
 </template>
 
-<script>
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+<script setup>
+import Editor from '@tinymce/tinymce-vue'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { useDocsStore } from '@/store.js'
+import { defineProps } from 'vue'
 
-export default {
-  components: {
-    QuillEditor
-  },
-  props: ['content'],
-  data() {
-    return {
-      store: useDocsStore(), 
-      text: ``,
-      rulerSteps: 10, 
-      currIndentation: 0
-    };
-  },
-  mounted() {
-    const textarea = this.$refs.textarea;
-    this.$refs.page.style.height = textarea.scrollHeight >= 1150 ? 50 + textarea.scrollHeight + 'px' : 1200 + 'px'
-  },
-  methods: {
-    handleInput(event) {
-      const textarea = this.$refs.textarea;
-      //textarea.style.height = textarea.scrollHeight + 'px';
-      this.$refs.page.style.height = textarea.scrollHeight >= 1150 ? 50 + textarea.scrollHeight + 'px' : 1200 + 'px'
+const props = defineProps({
+  content: Object
+})
 
+const store = useDocsStore()
+let text = props.content.content.text
+let test = 0
 
-    },
-    newParagraph() {
-      const textarea = this.$refs.textarea;
-      const cursorPosition = textarea.selectionStart;
-      const textBeforeCursor = this.store.selectedDoc.content.text.substring(0, cursorPosition);
-      const textAfterCursor = this.store.selectedDoc.content.text.substring(cursorPosition);
-      const linesBeforeCursor = textBeforeCursor.split('\n');
-      const previousLineIndentation = "\t".repeat(this.currIndentation)
+function testF(t, e){
+  props.content.content.text = e.getContent()
+  console.log(store.userDocs.filter(el=>el._id==props.content._id)[0])
+  console.log(props.content.content.text)
+}
 
-      this.store.selectedDoc.content.text = `${textBeforeCursor}${previousLineIndentation}${textAfterCursor}`;
-       textarea.selectionStart = textarea.selectionEnd = 540;
-       console.log(cursorPosition+this.currIndentation)
-    },
-    applyIndentation(indentation) {
-      let change = indentation - this.currIndentation;
-      let paragraphs = this.store.selectedDoc.content.text.split('\n');
-      const indentedParagraphs = paragraphs.map(paragraph => {
-        let indentationSpaces = "";
-        if (indentation === 0) {
-          paragraph = paragraph.trimStart(); // Remove all existing indentation
-        } else if (change > 0 && paragraph.length > 0) {
-          indentationSpaces = "\t".repeat(change);
-        } else {
-          indentationSpaces = ""; // Reset indentationSpaces for negative change
-          for (let i = 0; i < -change; i++) {
-            paragraph = paragraph.replace(/^\t/, ''); // Remove one tab from the start for each negative change
-          }
-        }
-
-        return `${indentationSpaces}${paragraph}`;
-      });
-
-      // Join paragraphs back together with newlines
-      this.store.selectedDoc.content.text = indentedParagraphs.join('\n');
-      this.currIndentation = indentation;
-    },
-
-
-
-  }
-};
 </script>
 
 <style scoped>
-.page {
-  margin: auto;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  border-radius: 1px;
-  margin-bottom: 2rem;
-  height: 1200px;
-  /* or you can use height: 90vh; for 90% of viewport height */
-  width: 900px;
-}
-
-.page-2 {
-  margin: auto;
-  border-radius: 1px;
-  margin-bottom: 2rem;
-  height: 1200px;
-  /* or you can use height: 90vh; for 90% of viewport height */
-  width: 800px;
-}
-
 .ruler {
   margin: auto;
   margin-top: 2rem;
@@ -114,5 +49,16 @@ export default {
 
 .text-area {
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  #sample {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 2rem;
   }
+}
 </style>

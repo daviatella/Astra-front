@@ -1,23 +1,11 @@
 import { useVueFlow } from '@vue-flow/core'
 import { ref, watch } from 'vue'
 
-let id = 0
 
-/**
- * @returns {string} - A unique id.
- */
-function getId() {
-  return `dndnode_${id++}`
-}
 
-/**
- * In a real world scenario you'd want to avoid creating refs in a global scope like this as they might not be cleaned up properly.
- * @type {{draggedType: Ref<string|null>, isDragOver: Ref<boolean>, isDragging: Ref<boolean>}}
- */
+
 const state = {
-  /**
-   * The type of the node being dragged.
-   */
+
   draggedType: ref(null),
   isDragOver: ref(false),
   isDragging: ref(false),
@@ -46,11 +34,7 @@ export default function useDragAndDrop() {
 
     document.addEventListener('drop', onDragEnd)
   }
-  /**
-   * Handles the drag over event.
-   *
-   * @param {DragEvent} event
-   */
+
   function onDragOver(event) {
     event.preventDefault()
 
@@ -74,18 +58,12 @@ export default function useDragAndDrop() {
     document.removeEventListener('drop', onDragEnd)
   }
 
-  /**
-   * Handles the drop event.
-   *
-   * @param {DragEvent} event
-   */
-  function onDrop(event) {
+
+  function onDrop(event, nodeId) {
     const position = screenToFlowCoordinate({
       x: event.clientX,
       y: event.clientY,
     })
-
-    const nodeId = getId()
 
     const newNode = {
       id: nodeId,
@@ -96,12 +74,6 @@ export default function useDragAndDrop() {
       style: draggedStyle.value
     }
 
-
-    /**
-     * Align node position after drop, so it's centered to the mouse
-     *
-     * We can hook into events even in a callback, and we can remove the event listener after it's been called.
-     */
     const { off } = onNodesInitialized(() => {
       updateNode(nodeId, (node) => ({
         position: { x: node.position.x - node.dimensions.width / 2, y: node.position.y - node.dimensions.height / 2 },

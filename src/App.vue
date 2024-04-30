@@ -30,7 +30,7 @@ export default {
           let responseData = await baseCall('docs-by-owner', b)
           this.store.userDocs = responseData.data.filter(el => el.type != 'project')
           this.store.userProjs = responseData.data.filter(el => el.type == 'project')
-          console.log(this.store.userProjs)
+          this.store.saveDataToStorage()
         })
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -45,6 +45,8 @@ export default {
         email: email,
         password: pw
       }
+      this.store.loadDataFromStorage()
+      console.log(this.store.userInfo)
       if (!this.store.userInfo) {
         try {
           const responseData = await baseCall('users/login', b)

@@ -47,6 +47,10 @@ async function saveFlow() {
         @dragstart="(event) => onDragStart(event, 'toolbar', styles.toolbar)">
         Toolbar Node
       </div>
+      <div class="vue-flow__node-custom node" :draggable="true"
+        @dragstart="(event) => onDragStart(event, 'document', styles.document)">
+        Document Node
+      </div>
     </div>
   </aside>
 </template>

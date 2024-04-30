@@ -53,6 +53,7 @@ export default {
             this.selectedDoc = store.selectedDoc
             store.mindmap = this.selectedDoc.content.mindmap
         }
+        store.saveDataToStorage()
     },
     data() {
         return {
@@ -69,6 +70,7 @@ export default {
             }
         },
         async saveDoc() {
+            console.log('here0')
             try {
                 const response = await fetch('http://localhost:4000/api/docs', {
                     method: 'POST',
@@ -113,4 +115,4 @@ export default {
     z-index: 1;
     margin-top: 1rem;
 }
-</style>./TextPanel.vue./NotesPanel.vue
+</style>
