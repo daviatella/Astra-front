@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 export const useDocsStore = defineStore("docs", {
   state: () => ({
-    userDocs: [],
+    userDocs: ref([]),
     selectedDoc: "",
     user: "daviatella",
     searchQuery: ref(""),

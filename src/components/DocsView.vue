@@ -23,7 +23,7 @@
       </v-autocomplete>
     </v-expand-transition>
     <CreateButtons @create-doc="openModal('doc')" @create-board="openModal('board')" class="m-auto" />
-    <v-container class="bg-deep-purple-lighten-5 mb-5 doc-container">
+    <v-container :key="loader" class="bg-deep-purple-lighten-5 mb-5 doc-container">
       <v-row>
         <v-col v-for="(card, index) in filteredDocs" :key="index" cols="20" sm="1" md="1" lg="2">
           <NexusCard :card="card" :travel="true" @open-modal="openModal" />
@@ -64,6 +64,7 @@ export default {
     doc: '',
     dialog: false,
     type: '',
+    loader: 0,
     searchQuery: '',
     msgShow: false,
     msgColor: '',
@@ -73,9 +74,11 @@ export default {
   }),
   computed: {
     userDocs() {
+      console.log('triggered')
       return this.store.userDocs;
     },
     filteredDocs() {
+      console.log('triggered2')
       const query = this.searchQuery.toLowerCase();
       let newDocs = this.userDocs.filter(doc =>
         doc.title.toLowerCase().includes(query) ||
@@ -109,6 +112,7 @@ export default {
         this.msgShow = true;
         this.msgContent = msg
         this.msgColor = color
+        this.loader++
       }
 
     },

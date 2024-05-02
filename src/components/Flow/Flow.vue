@@ -1,5 +1,5 @@
 <script setup>
-import { ref} from 'vue'
+import { ref, reactive } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { useDocsStore } from '@/store.js'
 import TopBar from '../shared/TopBar.vue';
@@ -8,11 +8,11 @@ import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
 import ToolbarNode from './CustomNode.vue'
 import DocumentNode from './DocumentNode.vue';
-import NexusCard from '../shared/NexusCard.vue';
-
+import DocsModal from '../Projects/DocsModal.vue';
+import DefEdge from './DefEdge.vue'
 
 const props = defineProps(['id'])
-const { onPaneReady, onConnect, addEdges, fromObject, toObject } = useVueFlow()
+const { onPaneReady, findEdge, applyEdgeChanges, removeNodes, onConnect, addEdges, toObject } = useVueFlow()
 
 onPaneReady(({ fitView }) => {
   fitView()
@@ -37,35 +37,98 @@ function logNodes() {
 
 
 function getNewNodeId() {
- return "dndnode_"+toObject().nodes.length
+  return "dndnode_" + toObject().nodes.length
 }
- 
+const state = reactive({
+  docsModal: false,
+})
+function closeDocModal(docs) {
+  state.docsModal = false
+  if (docs[0]) {
+    onDrop(ev, getNewNodeId(), docs[0])
+  }
+}
 
+let ev = ''
 
-const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
+function chooseDoc(event) {
+  ev = event
+  if (type === 'document') {
+    state.docsModal = true
+  } else {
+    onDrop(ev, getNewNodeId())
+  }
+}
+
+function copyNode(nodeProps) {
+
+}
+
+let type = ''
+
+function setLocalType(t) {
+  type = t;
+  console.log(state.docsModal)
+}
+
+function edgeClick(event) {
+  console.log(event.edge)
+  event.edge.data.selected = true
+  let arr = []
+  arr.push(findEdge(event.edge.id))
+  applyEdgeChanges(arr)
+}
+
+function test(t){
+  console.log(t)
+}
+
+const { onDragOver, onDrop, updateFlow, onDragLeave, isDragOver } = useDragAndDrop()
 </script>
 
 
 <template>
   <TopBar v-if="props.id"></TopBar>
-  <div class="dndflow" @drop="onDrop($event, getNewNodeId())">
-    <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @dragover="onDragOver" @dragleave="onDragLeave"
-      @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
+  <div class="dndflow" @drop="chooseDoc($event)">
+    <v-dialog v-model="state.docsModal" width="auto">
+      <DocsModal type="both" @closeModal="closeDocModal"></DocsModal>
+    </v-dialog>
+    <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @edge-click="edgeClick" @dragover="onDragOver"
+      @dragleave="onDragLeave" @node-mouse-enter="resizer = true" @edge-context-menu="test" @node-mouse-leave="resizer = false">
       <DropzoneBackground :style="{
         backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
         transition: 'background-color 0.2s ease',
       }" />
+
       <template #node-toolbar="nodeProps">
-        <ToolbarNode :data="nodeProps.data" :resizer="resizer" :label="'test'" :act1="logNodes" :act2="getNodeCount" />
+        <ToolbarNode :data="nodeProps.data" @click="console.log(nodeProps)" :label="'test'"
+          :act1="logNodes" :act2="getNodeCount" />
       </template>
 
       <template #node-document="nodeProps">
-        <NexusCard class="nodedoc" :node="true" :card="store.selectedDoc" />
+        <DocumentNode @copy-node="copyNode(nodeProps)" @delete-node="removeNodes(nodeProps)" class="nodedoc"
+          :data="nodeProps.data" :node="nodeProps" :card="nodeProps.data.card" />
       </template>
-      
+
+      <template #edge-default="customEdgeProps">
+      <DefEdge
+        :id="customEdgeProps.id"
+        :source-x="customEdgeProps.sourceX"
+        :source-y="customEdgeProps.sourceY"
+        :target-x="customEdgeProps.targetX"
+        :target-y="customEdgeProps.targetY"
+        :source-position="customEdgeProps.sourcePosition"
+        :target-position="customEdgeProps.targetPosition"
+        :data="customEdgeProps.data"
+        :marker-end="customEdgeProps.markerEnd"
+        :style="customEdgeProps.style"
+        :label="'test label'"
+      />
+    </template>
+
     </VueFlow>
 
-    <Sidebar :isFlow="props.id" />
+    <Sidebar :isFlow="props.id" @typeSet="setLocalType" />
   </div>
 </template>
 
@@ -89,6 +152,11 @@ body,
   width: 11rem;
 }
 
+.def-node {
+
+  width: auto;
+  min-height: 6rem;
+}
 
 #app {
   text-transform: uppercase;

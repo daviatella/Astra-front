@@ -1,5 +1,5 @@
 <template>
-  <v-card @click="handleClick" class="rounded-lg doc-card" :class="{ 'selected': selected }">
+  <v-card @click="handleClick" class="rounded-lg doc-card" :class="{ 'selected': props.selected }">
     <header class="card-header ch-title text-truncate">
       <div style="width:75%" class="m-auto">
         <p class="text-truncate ml-n2">{{ card.title }}</p>
@@ -82,14 +82,12 @@ const getWordCount = (content, type) => {
     } else {
       return '0 words';
     }
-  } else {
-    if (content.mindmap.elements) {
+  } else if (content&&content.mindmap.elements) {
       let num = content.mindmap.elements.filter(el => el.dimensions).length;
       return num + (num > 1 ? ' nodes' : ' node');
     } else {
-      return '0 node';
-    }
-  }
+      return '';
+    } 
 };
 
 const imagePath = getImagePath(card.value.type);

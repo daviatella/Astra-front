@@ -27,6 +27,13 @@ async function saveFlow() {
     console.error('Error fetching data:', error);
   }
 }
+
+const emit = defineEmits(['typeSet'])
+
+function setType(event, type){
+  emit('typeSet', type)
+  onDragStart(event, type, styles[type])
+}
 </script>
 <template>
   <aside>
@@ -34,21 +41,12 @@ async function saveFlow() {
       Save
     </v-btn>
     <div class="mt-5 mr-3">
-      <div class="vue-flow__node-input node" :draggable="true" @dragstart="(event) => onDragStart(event, 'input')">
-        Input Node
-      </div>
-      <div class="vue-flow__node-default node" :draggable="true" @dragstart="(event) => onDragStart(event, 'default')">
+      <div class="vue-flow__node-custom node" :draggable="true"
+        @dragstart="(event) => setType(event, 'toolbar')">
         Default Node
       </div>
-      <div class="vue-flow__node-output node" :draggable="true" @dragstart="(event) => onDragStart(event, 'output')">
-        Output Node
-      </div>
       <div class="vue-flow__node-custom node" :draggable="true"
-        @dragstart="(event) => onDragStart(event, 'toolbar', styles.toolbar)">
-        Toolbar Node
-      </div>
-      <div class="vue-flow__node-custom node" :draggable="true"
-        @dragstart="(event) => onDragStart(event, 'document', styles.document)">
+        @dragstart="(event) => setType(event, 'document')">
         Document Node
       </div>
     </div>
@@ -84,7 +82,7 @@ aside {
 }
 
 .vue-flow__node-custom {
-  background: #9CA8B3;
+  background: #6cafee;
   color: #fff;
   padding: 10px;
   padding: 10px;
@@ -96,4 +94,4 @@ aside {
   border-style: solid;
   border-color: black;
 }
-</style>./nodes.style.js
+</style>

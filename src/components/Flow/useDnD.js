@@ -15,11 +15,34 @@ const state = {
 export default function useDragAndDrop() {
   const { draggedType, draggedStyle, isDragOver, isDragging } = state
 
-  const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
+  const { addNodes, findNode, removeNodes,screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
   watch(isDragging, (dragging) => {
     document.body.style.userSelect = dragging ? 'none' : ''
   })
+
+  function updateFlow(){
+    const position = screenToFlowCoordinate({
+      x: 0,
+      y: 0,
+    })
+
+    const newNode = {
+      id: 'basedoc',
+      type: draggedType.value,
+      position,
+      label: '1',
+      class:'light',
+      style: draggedStyle.value
+    }
+    newNode.data = {}
+    newNode.data.card = {
+     _id: 'basedoc',
+     title: 'basedoc',
+      type: 'doc'
+    }
+    addNodes(newNode)
+  }
 
   function onDragStart(event, type, style) {
     if (event.dataTransfer) {
@@ -59,7 +82,7 @@ export default function useDragAndDrop() {
   }
 
 
-  function onDrop(event, nodeId) {
+  function onDrop(event, nodeId, card) {
     const position = screenToFlowCoordinate({
       x: event.clientX,
       y: event.clientY,
@@ -73,6 +96,18 @@ export default function useDragAndDrop() {
       class:'light',
       style: draggedStyle.value
     }
+    if(card){
+      newNode.data = {}
+      newNode.type = 'document'
+      newNode.data.card = {
+       _id: card._id,
+       title: card.title,
+        type: card.type
+      }
+    }
+    console.log(card)
+    console.log(newNode)
+
 
     const { off } = onNodesInitialized(() => {
       updateNode(nodeId, (node) => ({
@@ -92,6 +127,7 @@ export default function useDragAndDrop() {
     onDragStart,
     onDragLeave,
     onDragOver,
+    updateFlow,
     onDrop,
   }
 }

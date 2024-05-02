@@ -1,15 +1,15 @@
 <template>
     <v-card class="modal rounded-lg">
-        <div class="text bg-banner bg-grey" style="display: flex;">
+        <div class="text bg-banner bg-yellow-lighten-4" style="display: flex;">
             <v-spacer></v-spacer>
             <v-card-title class="ml-8">Select {{ typeName }}</v-card-title>
             <v-spacer></v-spacer>
         </div>
         <v-card-text class="w-100">
-            
+
             <v-container class="mb-5">
                 <v-row>
-                    <v-col v-for="(card, index) in docs" :key="index" cols="20" sm="1" md="1" lg="2">
+                    <v-col v-for="(card, index) in docs" @click="select(index, card)" :key="index" cols="20" sm="1" md="1" lg="2">
                         <NexusCard :card="card" @click="select(index, card)" :selected="this.selectedArray[index]"
                             :travel="false" @open-modal="openModal" />
                     </v-col>
@@ -17,7 +17,7 @@
             </v-container>
         </v-card-text>
 
-        <div class="text bg-banner bg-grey mt-3">
+        <div class="text bg-banner bg-yellow-lighten-4 mt-3">
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn @click="closeModal(true)" variant="outlined"> Select </v-btn>
@@ -39,8 +39,16 @@ export default {
 
     data() {
         let store = useDocsStore()
-        let typeName = this.type == 'board' ? 'Boards' : 'Nexus'
-        let docs = store.userDocs.filter(el => el.type == this.type)
+        let docs = []
+        let typeName = ''
+        if (this.type == `board` || this.type == `nexus`) {
+            typeName = this.type == 'board' ? 'Boards' : 'Nexus'
+            docs = store.userDocs.filter(el => el.type == this.type)
+        } else {
+            docs = store.userDocs
+            typeName = 'Document'
+        }
+        console.log(docs)
         let selectedArray = new Array(docs.length).fill(false)
         return {
             store,
@@ -51,6 +59,8 @@ export default {
         };
     },
     mounted() {
+        console.log('opened')
+
     },
     methods: {
         closeModal(select) {
@@ -66,6 +76,7 @@ export default {
             } else {
                 this.chosenDocs.splice(this.chosenDocs.findIndex(el => el._id == card._id), 1)
             }
+            console.log(this.selectedArray[i])
         },
     },
 };

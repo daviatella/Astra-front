@@ -196,7 +196,10 @@ export default {
             this.isLoading = true;
             try {
                 const responseData = await deleteDocument(this.doc._id, this.doc._rev);
-                this.store.userDocs = this.store.userDocs.filter(doc => doc._id !== this.doc._id);
+                console.log(this.store.userDocs.length)
+                let test = this.store.userDocs.splice(this.store.userDocs.findIndex(el=>el._id==this.doc._id),1)
+                console.log(this.store.userDocs.length)
+                console.log(test)
                 this.closeModal('Document Deleted Successfully', 'green');
             } catch (error) {
                 console.error('Error deleting document:', error);

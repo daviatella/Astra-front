@@ -127,6 +127,7 @@ export default {
         this.categories = []
         this.categories = this.store.userInfo.tags.map(tag => tag.title);
         this.icons = meta.map(icon => icon.name);
+        console.log(this.isUpdate)
         if (this.isUpdate) {
             if (this.updateInfo.tag) {
                 this.tagName = this.updateInfo.tag.name;
@@ -140,7 +141,7 @@ export default {
                 this.catModal = true;
                 this.newCategory = true;
             }
-        } else if (this.updateInfo.newCat) {
+        } else if (this.updateInfo&&this.updateInfo.newCat) {
             this.catModal = true;
             this.newCategory = true;
         }
