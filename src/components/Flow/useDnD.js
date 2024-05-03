@@ -2,8 +2,6 @@ import { useVueFlow } from '@vue-flow/core'
 import { ref, watch } from 'vue'
 
 
-
-
 const state = {
 
   draggedType: ref(null),
@@ -82,7 +80,7 @@ export default function useDragAndDrop() {
   }
 
 
-  function onDrop(event, nodeId, card) {
+  function onDrop(event, nodeId, card, data, type) {
     const position = screenToFlowCoordinate({
       x: event.clientX,
       y: event.clientY,
@@ -96,7 +94,10 @@ export default function useDragAndDrop() {
       class:'light',
       style: draggedStyle.value
     }
-    if(card){
+    if(data) {
+      newNode.data = data
+      newNode.type = type
+    } else if(card){
       newNode.data = {}
       newNode.type = 'document'
       newNode.data.card = {

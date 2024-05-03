@@ -22,7 +22,9 @@ function stuff(d) {
 <template>
   <div class="test-node">
     <v-textarea name="input-7-1" class="def-node" variant="filled" auto-grow>
-      <NodeToolbar style="display: flex; gap: 0.5rem; align-items: center" :is-visible="data.toolbarVisible"
+
+    </v-textarea>
+    <NodeToolbar style="display: flex; gap: 0.5rem; align-items: center" :is-visible="data.toolbarVisible"
         :position="data.toolbarPosition">
         <!-- <button @click="act1">Action1</button> -->
         <button @click="act2">Action2</button>
@@ -32,8 +34,6 @@ function stuff(d) {
       <Handle type="source" :position="Position.Right" />
       <Handle type="target" :position="Position.Top" />
       <Handle type="source" :position="Position.Bottom" />
-    </v-textarea>
-
   </div>
 </template>
 

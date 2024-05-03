@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { VueFlow, applyChanges, useVueFlow } from '@vue-flow/core'
 import { useDocsStore } from '@/store.js'
 import TopBar from '../shared/TopBar.vue';
 import DropzoneBackground from './DropzoneBackground.vue'
@@ -10,9 +10,10 @@ import ToolbarNode from './CustomNode.vue'
 import DocumentNode from './DocumentNode.vue';
 import DocsModal from '../Projects/DocsModal.vue';
 import DefEdge from './DefEdge.vue'
+import ColorModal from './ColorModal.vue';
 
 const props = defineProps(['id'])
-const { onPaneReady, findEdge, applyEdgeChanges, removeNodes, onConnect, addEdges, toObject } = useVueFlow()
+const { onPaneReady, findEdge, addNodes, applyNodeChanges, applyEdgeChanges, removeNodes, onConnect, addEdges, toObject } = useVueFlow()
 
 onPaneReady(({ fitView }) => {
   fitView()
@@ -41,11 +42,20 @@ function getNewNodeId() {
 }
 const state = reactive({
   docsModal: false,
+  colorModal: false
 })
+
 function closeDocModal(docs) {
   state.docsModal = false
   if (docs[0]) {
     onDrop(ev, getNewNodeId(), docs[0])
+  }
+}
+
+function closeColorModal(color, node) {
+  state.colorModal = false
+  if (color) {
+    node.data.color = color
   }
 }
 
@@ -61,8 +71,22 @@ function chooseDoc(event) {
 }
 
 function copyNode(nodeProps) {
+ let newNode = JSON.stringify(nodeProps)
+ console.log(nodeProps)
+ nodeProps.selected=false;
+ newNode = JSON.parse(newNode)
+ newNode.id = getNewNodeId()
+ newNode.position.x = newNode.position.x + 300
+ addNodes(newNode)
 
 }
+
+let selectedNode = ''
+function editColor(nodeProps) {
+  state.colorModal=true
+  selectedNode=nodeProps
+}
+
 
 let type = ''
 
@@ -74,13 +98,11 @@ function setLocalType(t) {
 function edgeClick(event) {
   console.log(event.edge)
   event.edge.data.selected = true
+  event.edge.data.label = 'true'
+
   let arr = []
   arr.push(findEdge(event.edge.id))
   applyEdgeChanges(arr)
-}
-
-function test(t){
-  console.log(t)
 }
 
 const { onDragOver, onDrop, updateFlow, onDragLeave, isDragOver } = useDragAndDrop()
@@ -93,38 +115,41 @@ const { onDragOver, onDrop, updateFlow, onDragLeave, isDragOver } = useDragAndDr
     <v-dialog v-model="state.docsModal" width="auto">
       <DocsModal type="both" @closeModal="closeDocModal"></DocsModal>
     </v-dialog>
+
+    <v-dialog v-model="state.colorModal" width="auto">
+      <ColorModal :node="selectedNode" @closeModal="closeColorModal"></ColorModal>
+    </v-dialog>
+
+
     <VueFlow v-model="store.selectedDoc.content.mindmap.elements" @edge-click="edgeClick" @dragover="onDragOver"
-      @dragleave="onDragLeave" @node-mouse-enter="resizer = true" @edge-context-menu="test" @node-mouse-leave="resizer = false">
+      @dragleave="onDragLeave" @node-mouse-enter="resizer = true" @node-mouse-leave="resizer = false">
       <DropzoneBackground :style="{
         backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
         transition: 'background-color 0.2s ease',
       }" />
 
       <template #node-toolbar="nodeProps">
-        <ToolbarNode :data="nodeProps.data" @click="console.log(nodeProps)" :label="'test'"
-          :act1="logNodes" :act2="getNodeCount" />
+        <ToolbarNode :data="nodeProps.data" @click="console.log(nodeProps)" :label="'test'" :act1="logNodes"
+          :act2="getNodeCount" />
       </template>
 
       <template #node-document="nodeProps">
-        <DocumentNode @copy-node="copyNode(nodeProps)" @delete-node="removeNodes(nodeProps)" class="nodedoc"
-          :data="nodeProps.data" :node="nodeProps" :card="nodeProps.data.card" />
+        <DocumentNode @copy-node="copyNode(nodeProps)" @delete-node="removeNodes(nodeProps)"
+          @edit-color="editColor(nodeProps)" class="nodedoc" :data="nodeProps.data" :color="nodeProps.data.color"
+          :node="nodeProps" :card="nodeProps.data.card" />
       </template>
 
-      <template #edge-default="customEdgeProps">
-      <DefEdge
-        :id="customEdgeProps.id"
-        :source-x="customEdgeProps.sourceX"
-        :source-y="customEdgeProps.sourceY"
-        :target-x="customEdgeProps.targetX"
-        :target-y="customEdgeProps.targetY"
-        :source-position="customEdgeProps.sourcePosition"
-        :target-position="customEdgeProps.targetPosition"
-        :data="customEdgeProps.data"
-        :marker-end="customEdgeProps.markerEnd"
-        :style="customEdgeProps.style"
-        :label="'test label'"
-      />
-    </template>
+      <template #edge-custom="customEdgeProps">
+        <div v-if="true">
+          <v-btn variant='solo'> Hi </v-btn>
+        </div>
+
+        <DefEdge :id="customEdgeProps.id" :source-x="customEdgeProps.sourceX" :source-y="customEdgeProps.sourceY"
+          :target-x="customEdgeProps.targetX" :target-y="customEdgeProps.targetY"
+          :source-position="customEdgeProps.sourcePosition" :target-position="customEdgeProps.targetPosition"
+          :data="customEdgeProps.data" :marker-end="customEdgeProps.markerEnd" :style="customEdgeProps.style"
+          :selected="customEdgeProps.selected" />
+      </template>
 
     </VueFlow>
 
@@ -148,7 +173,7 @@ body,
   height: 100%;
 }
 
-.nodedoc {
+.vue-flow__node-document {
   width: 11rem;
 }
 

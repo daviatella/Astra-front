@@ -1,5 +1,5 @@
 <template>
-  <v-card @click="handleClick" v-ripple="false" class="rounded-lg doc-card">
+  <v-card @click="handleClick" v-ripple="false" class="rounded-lg doc-card" :style="{backgroundColor: props.color}">
     <header class="card-header ch-title text-truncate">
       <div style="width:75%" class="m-auto">
         <p class="text-truncate ml-n2">{{ card.title }}</p>
@@ -24,23 +24,15 @@
     </div>
   </v-card>
   <div>
-    <NodeToolbar class="toolbar" style="" :is-visible="data.toolbarVisible">
-      <!-- <v-btn @click="act1" class="m-auto bg-deep-purple-lighten-4 " variant="flat">Action1</v-btn> -->
-      <v-btn @click="copyNode" class="m-auto bg-deep-purple-lighten-4 ">Copy Node</v-btn>
-      <v-btn @click="deleteNode" class="m-auto bg-deep-purple-lighten-4 ">Delete Node</v-btn>
-    </NodeToolbar>
-    <Handle type="target" :position="Position.Top" />
-    <Handle type="source" :position="Position.Right" />
-    <Handle type="target" :position="Position.Left" />
-    <Handle type="source" :position="Position.Bottom" />
+    <Toolbar :data="data" :btns="btns"/>
     <NodeResizer></NodeResizer>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { NodeToolbar } from '@vue-flow/node-toolbar'
-
+import Toolbar from './Toolbar.vue';
 import { useRouter } from 'vue-router';
 import { NodeResizer } from '@vue-flow/node-resizer';
 import { Handle, Position } from '@vue-flow/core';
@@ -49,15 +41,14 @@ const props = defineProps({
   card: Object,
   travel: Boolean,
   data: Object,
-  node: Object
+  node: Object,
+  color: String
 });
 
 
 const travel = ref(props.travel);
 const data = ref(props.data);
 const card = ref(props.card)
-const node = ref(props.node)
-
 
 const router = useRouter();
 
@@ -69,21 +60,26 @@ const handleClick = () => {
     } else {
       router.push('/board/' + _id);
     }
-  } 
+  }
 };
 
 
-const emit = defineEmits(['deleteNode','copyNode'])
+const emit = defineEmits(['deleteNode', 'copyNode', 'editColor'])
 
 
-function deleteNode(){
+function deleteNode() {
   emit('deleteNode')
 }
 
-function copyNode(){
+function copyNode() {
   emit('copyNode')
 }
 
+function editColor() {
+  emit('editColor')
+}
+
+const btns = [copyNode, editColor, deleteNode]
 
 const getImagePath = (type) => {
   const baseUrl = new URL('../../', import.meta.url).href;
@@ -91,7 +87,7 @@ const getImagePath = (type) => {
 };
 
 const getWordCount = (content, type) => {
-  if (type === 'doc'&&content) {
+  if (type === 'doc' && content) {
     if (content.text) {
       let num = content.text.trim().split(/\s+/).length;
       return num + (num > 1 ? ' words' : ' word');
@@ -105,11 +101,11 @@ const getWordCount = (content, type) => {
     return '';
   }
 };
-let imagePath =''
-let wordCount =''
+let imagePath = ''
+let wordCount = ''
 if (card.value) {
-   imagePath = getImagePath(card.value.type);
-   wordCount = getWordCount(card.value.content, card.value.type);
+  imagePath = getImagePath(card.value.type);
+  wordCount = getWordCount(card.value.content, card.value.type);
 }
 </script>
 
@@ -122,9 +118,9 @@ if (card.value) {
   margin: 0 auto;
 }
 
-.toolbar{
-  display: flex; 
-  gap: 0.5rem; 
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
   align-items: center;
   width: fit-content;
 }
