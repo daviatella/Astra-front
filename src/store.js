@@ -19,7 +19,7 @@ export const useDocsStore = defineStore("docs", {
           this.userDocs = parsedData.userDocs;
           this.selectedDoc = parsedData.selectedDoc;
           this.userInfo = parsedData.userInfo;
-          this.userProjs = parsedData.userProjs;
+          this.userProjs = parsedData.userProjs
         }
       } catch(err){
         console.log(err)
