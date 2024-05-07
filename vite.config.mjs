@@ -10,9 +10,6 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    outDir: '../Astra-back/dist'
-  },
   plugins: [
     Vue({
       template: { transformAssetUrls }
