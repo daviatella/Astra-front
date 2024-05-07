@@ -6,7 +6,7 @@ import TopBar from '../shared/TopBar.vue';
 import DropzoneBackground from './DropzoneBackground.vue'
 import Sidebar from './Sidebar.vue'
 import useDragAndDrop from './useDnD'
-import ToolbarNode from './CustomNode.vue'
+import TextNode from './TextNode.vue'
 import DocumentNode from './DocumentNode.vue';
 import DocsModal from '../Projects/DocsModal.vue';
 import DefEdge from './DefEdge.vue'
@@ -55,7 +55,12 @@ function closeDocModal(docs) {
 function closeColorModal(color, node) {
   state.colorModal = false
   if (color) {
-    node.data.color = color
+    if (isT) {
+      node.data.textColor = color
+
+    } else {
+      node.data.color = color
+    }
   }
 }
 
@@ -71,20 +76,22 @@ function chooseDoc(event) {
 }
 
 function copyNode(nodeProps) {
- let newNode = JSON.stringify(nodeProps)
- console.log(nodeProps)
- nodeProps.selected=false;
- newNode = JSON.parse(newNode)
- newNode.id = getNewNodeId()
- newNode.position.x = newNode.position.x + 300
- addNodes(newNode)
+  let newNode = JSON.stringify(nodeProps)
+  console.log(nodeProps)
+  nodeProps.selected = false;
+  newNode = JSON.parse(newNode)
+  newNode.id = getNewNodeId()
+  newNode.position.x = newNode.position.x + 300
+  addNodes(newNode)
 
 }
 
 let selectedNode = ''
-function editColor(nodeProps) {
-  state.colorModal=true
-  selectedNode=nodeProps
+let isT = false
+function editColor(nodeProps, isText) {
+  state.colorModal = true
+  isT = isText
+  selectedNode = nodeProps
 }
 
 
@@ -96,13 +103,22 @@ function setLocalType(t) {
 }
 
 function edgeClick(event) {
-  console.log(event.edge)
-  event.edge.data.selected = true
-  event.edge.data.label = 'true'
+  const styles = ['default', 'smoothstep', 'step', 'straight'];
+  let currentIndex = styles.indexOf(event.edge.type);
+  if (currentIndex === -1) currentIndex = styles.length - 1; 
+  const nextIndex = (currentIndex + 1) % (styles.length + 1); 
+  if (nextIndex < styles.length) {
+    event.edge.type = styles[nextIndex];
+  } else {
+    event.edge.type = 'default';
+    event.edge.animated = !event.edge.animated; 
+  }
+}
 
-  let arr = []
-  arr.push(findEdge(event.edge.id))
-  applyEdgeChanges(arr)
+function test(text, node){
+  node.data.text = text
+  let i = store.selectedDoc.content.mindmap.elements.findIndex(el=>el.id==node.id)
+  console.log(store.selectedDoc.content.mindmap.elements[i])
 }
 
 const { onDragOver, onDrop, updateFlow, onDragLeave, isDragOver } = useDragAndDrop()
@@ -129,26 +145,23 @@ const { onDragOver, onDrop, updateFlow, onDragLeave, isDragOver } = useDragAndDr
       }" />
 
       <template #node-toolbar="nodeProps">
-        <ToolbarNode :data="nodeProps.data" @click="console.log(nodeProps)" :label="'test'" :act1="logNodes"
-          :act2="getNodeCount" />
+        <TextNode @copy-node="copyNode(nodeProps)" @delete-node="removeNodes(nodeProps)"
+          @edit-color="console.log(nodeProps)" @update-text="test" @edit-text-color="editColor(nodeProps, true)" :node="nodeProps"
+          :color="nodeProps.data.color" :text="nodeProps.data.text" :text-color="nodeProps.data.textColor" :selected="nodeProps.selected" />
       </template>
 
       <template #node-document="nodeProps">
         <DocumentNode @copy-node="copyNode(nodeProps)" @delete-node="removeNodes(nodeProps)"
           @edit-color="editColor(nodeProps)" class="nodedoc" :data="nodeProps.data" :color="nodeProps.data.color"
-          :node="nodeProps" :card="nodeProps.data.card" />
+          :node="nodeProps" :card="nodeProps.data.card" :selected="nodeProps.selected" />
       </template>
 
-      <template #edge-custom="customEdgeProps">
-        <div v-if="true">
-          <v-btn variant='solo'> Hi </v-btn>
-        </div>
-
+      <template #edge-default="customEdgeProps">
         <DefEdge :id="customEdgeProps.id" :source-x="customEdgeProps.sourceX" :source-y="customEdgeProps.sourceY"
           :target-x="customEdgeProps.targetX" :target-y="customEdgeProps.targetY"
           :source-position="customEdgeProps.sourcePosition" :target-position="customEdgeProps.targetPosition"
           :data="customEdgeProps.data" :marker-end="customEdgeProps.markerEnd" :style="customEdgeProps.style"
-          :selected="customEdgeProps.selected" />
+          :selected="customEdgeProps.selected" :type="'smoothstep'"/>
       </template>
 
     </VueFlow>

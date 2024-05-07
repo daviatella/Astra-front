@@ -46,7 +46,7 @@ const props = defineProps({
     selected: {
         type: Boolean,
         required: false
-    }
+    },
 })
 
 const path = computed(() => getBezierPath(props))
@@ -56,8 +56,6 @@ const path = computed(() => getBezierPath(props))
 export default {
     inheritAttrs: false,
 }
-
-
 </script>
 
 <template>

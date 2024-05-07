@@ -13,7 +13,7 @@ const state = {
 export default function useDragAndDrop() {
   const { draggedType, draggedStyle, isDragOver, isDragging } = state
 
-  const { addNodes, findNode, removeNodes,screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
+  const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
   watch(isDragging, (dragging) => {
     document.body.style.userSelect = dragging ? 'none' : ''
@@ -106,9 +106,6 @@ export default function useDragAndDrop() {
         type: card.type
       }
     }
-    console.log(card)
-    console.log(newNode)
-
 
     const { off } = onNodesInitialized(() => {
       updateNode(nodeId, (node) => ({

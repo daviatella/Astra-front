@@ -1,28 +1,23 @@
 <template>
     <NodeToolbar class="toolbar" :is-visible="data.toolbarVisible">
-        <v-btn @click="btns[0]" class="m-auto bg-deep-purple-lighten-4 ">Copy Node</v-btn>
-        <v-btn @click="btns[1]" class="m-auto bg-deep-purple-lighten-4 ">Edit Color</v-btn>
-        <v-btn @click="btns[2]" class="m-auto bg-deep-purple-lighten-4 ">Delete Node</v-btn>
+        <v-btn v-for="b, index in btnsLbl" @click="btns[index]" class="m-auto bg-deep-purple-lighten-4 ">{{ b }}</v-btn>
     </NodeToolbar>
     <Handle type="target" :position="Position.Top" />
     <Handle type="source" :position="Position.Right" />
     <Handle type="target" :position="Position.Left" />
     <Handle type="source" :position="Position.Bottom" />
-    <NodeResizer></NodeResizer>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { NodeToolbar } from '@vue-flow/node-toolbar'
-
-import { NodeResizer } from '@vue-flow/node-resizer';
 import { Handle, Position } from '@vue-flow/core';
 
-const props = defineProps(['btns', 'data']);
+const props = defineProps(['btns', 'data', 'btnsLbl', 'node']);
 
 
 const btns = ref(props.btns);
-
+const btnsLbl = ref(props.btnsLbl)
 </script>
 
 <style>

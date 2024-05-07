@@ -10,6 +10,7 @@ console.log(props.isFlow)
 
 async function saveFlow() {
   try {
+    store.saveDataToStorage()
     const response = await fetch('http://localhost:4000/api/docs', {
       method: 'POST',
       headers: {
@@ -41,11 +42,11 @@ function setType(event, type){
       Save
     </v-btn>
     <div class="mt-5 mr-3">
-      <div class="vue-flow__node-custom node" :draggable="true"
+      <div class="vue-flow__node-text node" :draggable="true"
         @dragstart="(event) => setType(event, 'toolbar')">
-        Default Node
+        Text Node
       </div>
-      <div class="vue-flow__node-custom node" :draggable="true"
+      <div class="vue-flow__node-doc node" :draggable="true"
         @dragstart="(event) => setType(event, 'document')">
         Document Node
       </div>
@@ -81,7 +82,26 @@ aside {
   box-shadow: 5px 5px 10px 2px #00000040;
 }
 
-.vue-flow__node-custom {
+.vue-flow__node-text {
+  background: rgb(217, 214, 214);
+  color: black;
+  padding: 10px;
+  padding: 10px;
+  border-radius: 3px;
+  width: 150px;
+  height: 100px;
+  line-height: 80px;
+  font-size: 12px;
+  text-align: center;
+  justify-content: center;
+  vertical-align: middle;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+}
+
+
+.vue-flow__node-doc {
   background: #6cafee;
   color: #fff;
   padding: 10px;
